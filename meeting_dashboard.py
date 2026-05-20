@@ -367,53 +367,64 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0a1a; colo
 <!-- HOME -->
 <div class="panel active" id="panel-home">
     <div class="hero">
-        <h1>Gragg Robotics — MTI Meeting Prep</h1>
+        <h1>Gragg Robotics — APEX Meeting Day</h1>
         <h2>Universal Multi-Drone Control Systems</h2>
         <div class="meeting-info">
-            <strong>Meeting with:</strong> Abigail "Abby" Naana Osei, Investment Officer, MTI<br>
-            <strong>App ID:</strong> 2428739 &nbsp;|&nbsp; <strong>Format:</strong> Virtual, ~1 hour
+            <strong>TODAY 9:30 AM</strong> — In-person with <strong>Marissa Henkel</strong> (APEX Accelerator)<br>
+            <strong>Location:</strong> KVCOG offices, Fairfield ME &nbsp;|&nbsp; <strong>Topic:</strong> Procurement Readiness Coaching<br>
+            <strong>Marissa:</strong> 207-299-4810 &nbsp;|&nbsp; mhenkel@emdc.org
         </div>
     </div>
 
     <div class="key-phrases">
-        <h3>5 Key Sentences to Remember</h3>
-        <div class="phrase">"First-time founder, feel free to slow me down on terms." <em>Sets honest bar</em></div>
-        <div class="phrase">"Cash match $5K plus full-time sweat equity, happy to follow your guidance on the right mix." <em>Concrete + coachable</em></div>
-        <div class="phrase">"Civilian-first by deliberate choice — defense is a track, not the lead." <em>Differentiator</em></div>
-        <div class="phrase">"I'm building this to operate, not to sell next year." <em>Antidote to quick-flip pitch</em></div>
-        <div class="phrase">"Where would you push me to think harder?" <em>Best line for unfiltered coaching</em></div>
+        <h3>Questions to Ask Marissa Today</h3>
+        <div class="phrase">1. <strong>AFWERX BAA timing</strong> — when does the next Phase I window open, where do I monitor? <em>Critical for SBIR</em></div>
+        <div class="phrase">2. <strong>End-user letters of support</strong> — does APEX have intros to AFRL / 711 HPW / AFSOC for letter of interest? <em>SBIR strength</em></div>
+        <div class="phrase">3. <strong>NDA template</strong> — Maine-friendly NDA for customers and partners? <em>Practical need</em></div>
+        <div class="phrase">4. <strong>SAM.gov session reschedule</strong> — once Certificate + EIN + bank in hand, next available slot? <em>Logistics</em></div>
+        <div class="phrase">5. <strong>NAICS codes</strong> — which primary NAICS for drone autonomy + dual-use? <em>Registration</em></div>
+        <div class="phrase">6. <strong>Pre-award match eligibility</strong> — can grant funds match pre-award expenses (laptop, subs)? <em>Budget</em></div>
+    </div>
+
+    <div class="key-phrases" style="margin-top:12px;">
+        <h3>Status Update for Marissa</h3>
+        <div class="phrase"><strong>LLC:</strong> Certificate in transit (mailed 5/5, USPS Priority Express + 24-hr expedite — overdue)</div>
+        <div class="phrase"><strong>MTI BIF:</strong> Intake call 5/13 with Abby Osei went well. $25K likely. Drafting application now.</div>
+        <div class="phrase"><strong>AFWERX SBIR:</strong> Full 15-section Phase I draft ready. Waiting for BAA window (Jun-Aug 2026).</div>
+        <div class="phrase"><strong>Website:</strong> Live at graggrobotics.com (Netlify). Demo recorded, upload pending.</div>
+        <div class="phrase"><strong>Prototype:</strong> Working 4-drone swarm UI in PX4 SITL. Live demo at http://192.168.18.47:8500</div>
     </div>
 
     <div class="dashboard-grid">
-        <div class="card" onclick="showPanel('script')">
-            <h3>Call Script (Teleprompter)</h3>
-            <p>Word-for-word script — opening line, all 8 BIF area answers, questions to ask, closing.</p>
-            <span class="badge danger">MOST IMPORTANT</span>
-        </div>
-        <div class="card" onclick="showPanel('terms')">
-            <h3>Terms Cheatsheet</h3>
-            <p>Federal contracting + drone-tech vocabulary. SBIR, SAM.gov, AFWERX, ITAR, MAVLink.</p>
-            <span class="badge yellow">Skim before call</span>
+        <div class="card" onclick="showPanel('deck')">
+            <h3>Presentation Deck</h3>
+            <p>10-slide Gragg Robotics overview deck. Walk Marissa through if she wants to see it.</p>
+            <span class="badge danger">HAVE READY</span>
         </div>
         <div class="card" onclick="showPanel('capability')">
             <h3>Capability Statement</h3>
-            <p>1-page company profile. Federal-contractor standard format. Have open if Abby asks.</p>
+            <p>1-page company profile. Federal-contractor standard format. Show Marissa if she asks.</p>
+            <span class="badge danger">HAVE READY</span>
+        </div>
+        <div class="card" onclick="showPanel('terms')">
+            <h3>Terms Cheatsheet</h3>
+            <p>Federal contracting + drone-tech vocabulary. SBIR, SAM.gov, AFWERX, ITAR, MAVLink, NAICS.</p>
+            <span class="badge yellow">Quick lookup</span>
+        </div>
+        <div class="card" onclick="showPanel('script')">
+            <h3>MTI Call Script</h3>
+            <p>Word-for-word script from Abby call — 8 BIF areas. Reference for talking points with Marissa.</p>
             <span class="badge green">Reference</span>
         </div>
         <div class="card" onclick="showPanel('sbir')">
             <h3>AFWERX SBIR Phase I Draft</h3>
-            <p>Full draft application — technical, cost volume, commercialization plan.</p>
-            <span class="badge green">Reference</span>
-        </div>
-        <div class="card" onclick="showPanel('deck')">
-            <h3>Presentation Deck</h3>
-            <p>10-slide overview deck. Upload your .pptx to view in browser.</p>
-            <span class="badge yellow">Upload needed</span>
+            <p>Full 15-section draft. Show Marissa for review — she should see it before submission.</p>
+            <span class="badge yellow">Marissa review</span>
         </div>
         <div class="card" onclick="openTeleprompter()">
             <h3>TELEPROMPTER MODE</h3>
-            <p>Full-screen script view. Keep on a second window during the call. Large text, dark background.</p>
-            <span class="badge danger">USE DURING CALL</span>
+            <p>Full-screen dark mode view of the call script. Quick reference during meeting.</p>
+            <span class="badge green">Optional</span>
         </div>
     </div>
 </div>
@@ -517,7 +528,7 @@ def index():
     capability_md = materials.get('03_capability_statement.md', 'Capability statement not found.')
     sbir_md = materials.get('04_AFWERX_SBIR_PHASE_I_DRAFT.md', 'SBIR draft not found.')
 
-    has_deck = any(f.endswith('.pptx') for f in os.listdir(UPLOAD_DIR))
+    has_deck = any(f.endswith('.pptx') for f in os.listdir(UPLOAD_DIR)) or any(f.endswith('.pptx') for f in os.listdir(MATERIALS_DIR))
 
     return render_template_string(
         DASHBOARD_HTML,
@@ -540,10 +551,10 @@ def upload_deck():
 
 @app.route('/deck_view')
 def deck_view():
-    for fname in os.listdir(UPLOAD_DIR):
-        if fname.endswith('.pptx'):
-            deck_path = os.path.join(UPLOAD_DIR, fname)
-            return _render_deck(deck_path)
+    for d in [UPLOAD_DIR, MATERIALS_DIR]:
+        for fname in os.listdir(d):
+            if fname.endswith('.pptx'):
+                return _render_deck(os.path.join(d, fname))
     return "No deck uploaded.", 404
 
 
