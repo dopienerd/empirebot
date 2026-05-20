@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRAGG ROBOTICS — APEX Meeting Center</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a1a;--surface:#111128;--surface2:#181836;--border:#252550;--accent:#e94560;--accent2:#ff6b81;--text:#e8e8f0;--text2:#a0a0c0;--text3:#666680;--green:#2ecc71;--yellow:#f1c40f;--blue:#3498db}
+
+html,body{height:100%;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+
+/* ===== TABS ===== */
+.tab-bar{display:flex;background:var(--surface);border-bottom:2px solid var(--border);padding:0 16px;height:52px;align-items:stretch;gap:2px;position:relative;z-index:100}
+.tab-btn{background:none;border:none;color:var(--text2);font-size:14px;font-weight:600;padding:0 20px;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;letter-spacing:.5px;white-space:nowrap}
+.tab-btn:hover{color:var(--text);background:rgba(233,69,96,.08)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(233,69,96,.06)}
+.tab-content{display:none;height:calc(100vh - 52px);overflow-y:auto;padding:0}
+.tab-content.active{display:block}
+
+/* scrollbar */
+.tab-content::-webkit-scrollbar{width:8px}
+.tab-content::-webkit-scrollbar-track{background:var(--bg)}
+.tab-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.tab-content::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+
+/* ===== HOME TAB ===== */
+.hero{text-align:center;padding:48px 32px 36px;background:linear-gradient(180deg,rgba(233,69,96,.12) 0%,transparent 100%);border-bottom:1px solid var(--border)}
+.hero-badge{display:inline-block;background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:20px;letter-spacing:1.5px;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:36px;font-weight:800;letter-spacing:2px;color:#fff;margin-bottom:8px}
+.hero h1 span{color:var(--accent)}
+.hero .subtitle{font-size:20px;color:var(--accent2);font-weight:600;margin-bottom:6px}
+.hero .location{font-size:16px;color:var(--text2);margin-bottom:4px}
+.hero .contact-line{font-size:14px;color:var(--text3);margin-top:10px}
+.hero .contact-line a{color:var(--blue);text-decoration:none}
+
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:32px;max-width:1200px;margin:0 auto}
+@media(max-width:900px){.home-grid{grid-template-columns:1fr}}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent);border-radius:10px 10px 0 0}
+.card h2{font-size:18px;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card h2 .icon{font-size:20px}
+
+.q-list{list-style:none;counter-reset:q}
+.q-list li{counter-increment:q;padding:10px 12px 10px 44px;border-bottom:1px solid var(--border);font-size:14px;line-height:1.5;position:relative}
+.q-list li:last-child{border-bottom:none}
+.q-list li::before{content:counter(q);position:absolute;left:10px;top:10px;width:24px;height:24px;background:var(--accent);color:#fff;font-size:12px;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.q-list li strong{color:var(--accent2)}
+
+.status-list{list-style:none}
+.status-list li{padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;line-height:1.6;display:flex;gap:10px;align-items:flex-start}
+.status-list li:last-child{border-bottom:none}
+.status-tag{flex-shrink:0;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
+.tag-transit{background:rgba(241,196,15,.15);color:var(--yellow)}
+.tag-progress{background:rgba(52,152,219,.15);color:var(--blue)}
+.tag-ready{background:rgba(46,204,113,.15);color:var(--green)}
+.tag-live{background:rgba(46,204,113,.15);color:var(--green)}
+.tag-working{background:rgba(233,69,96,.15);color:var(--accent)}
+
+/* ===== DECK TAB ===== */
+.deck-upload{display:flex;align-items:center;justify-content:center;height:100%;min-height:calc(100vh - 52px)}
+.deck-upload-box{background:var(--surface);border:2px dashed var(--border);border-radius:12px;padding:60px 80px;text-align:center;cursor:pointer;transition:border-color .3s;max-width:600px}
+.deck-upload-box:hover{border-color:var(--accent)}
+.deck-upload-box h2{font-size:28px;margin-bottom:8px;color:var(--accent)}
+.deck-upload-box p{font-size:15px;color:var(--text2);margin-bottom:20px}
+.deck-btn{background:var(--accent);color:#fff;border:none;padding:14px 36px;font-size:16px;border-radius:6px;cursor:pointer;font-weight:600;transition:background .2s}
+.deck-btn:hover{background:#c0392b}
+.deck-loading{display:none;font-size:16px;color:var(--accent);margin-top:16px}
+
+/* Deck presenter */
+.deck-presenter{display:none;height:100%;flex-direction:column}
+.deck-toolbar{display:flex;align-items:center;justify-content:space-between;padding:8px 20px;background:var(--surface);border-bottom:1px solid var(--border);height:46px}
+.deck-toolbar .dtitle{font-size:13px;color:var(--text2);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.deck-controls{display:flex;gap:6px;align-items:center}
+.deck-controls button{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 12px;border-radius:4px;cursor:pointer;font-size:12px}
+.deck-controls button:hover{background:var(--border)}
+.deck-controls .slide-counter{font-size:13px;color:var(--text2);margin:0 6px;min-width:50px;text-align:center}
+.deck-main{display:flex;flex:1;overflow:hidden}
+.deck-thumbs{width:150px;background:var(--surface);overflow-y:auto;padding:8px;border-right:1px solid var(--border)}
+.deck-thumbs.hidden{display:none}
+.dthumb{border:2px solid transparent;border-radius:4px;margin-bottom:6px;cursor:pointer;padding:3px;transition:border-color .2s}
+.dthumb.active{border-color:var(--accent)}
+.dthumb:hover{border-color:var(--text3)}
+.dthumb img{width:100%;border-radius:2px;display:block}
+.dthumb-label{font-size:9px;text-align:center;color:var(--text3);margin-top:2px}
+.deck-view{flex:1;display:flex;align-items:center;justify-content:center;position:relative;background:#050510}
+.deck-view img.dslide-img{max-width:95%;max-height:95%;object-fit:contain;box-shadow:0 4px 30px rgba(0,0,0,.6);border-radius:2px}
+.dnav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(17,17,40,.7);border:none;color:var(--text);font-size:24px;padding:12px 8px;cursor:pointer;border-radius:4px;z-index:10}
+.dnav:hover{background:rgba(233,69,96,.5)}
+.dnav.dleft{left:10px}
+.dnav.dright{right:10px}
+
+/* ===== MARKDOWN CONTENT TABS ===== */
+.md-wrap{padding:32px;max-width:960px;margin:0 auto}
+.md-wrap h1{font-size:28px;color:var(--accent);border-bottom:2px solid var(--border);padding-bottom:12px;margin-bottom:20px;font-weight:700}
+.md-wrap h2{font-size:22px;color:var(--accent2);margin-top:32px;margin-bottom:12px;font-weight:700}
+.md-wrap h3{font-size:17px;color:var(--text);margin-top:24px;margin-bottom:8px;font-weight:700}
+.md-wrap h4{font-size:15px;color:var(--text2);margin-top:16px;margin-bottom:6px;font-weight:700}
+.md-wrap p{font-size:14px;line-height:1.7;margin-bottom:12px;color:var(--text)}
+.md-wrap strong{color:#fff;font-weight:700}
+.md-wrap em{color:var(--text2);font-style:italic}
+.md-wrap a{color:var(--blue);text-decoration:none}
+.md-wrap a:hover{text-decoration:underline}
+.md-wrap ul,.md-wrap ol{margin:8px 0 16px 24px;font-size:14px;line-height:1.7}
+.md-wrap li{margin-bottom:4px}
+.md-wrap blockquote{border-left:4px solid var(--accent);background:rgba(233,69,96,.06);padding:12px 16px;margin:12px 0;border-radius:0 6px 6px 0;font-size:14px;line-height:1.7}
+.md-wrap blockquote p{margin-bottom:6px}
+.md-wrap blockquote p:last-child{margin-bottom:0}
+.md-wrap hr{border:none;border-top:1px solid var(--border);margin:24px 0}
+.md-wrap code{background:var(--surface2);color:var(--accent2);padding:2px 6px;border-radius:3px;font-size:13px;font-family:'Consolas','Courier New',monospace}
+.md-wrap pre{background:var(--surface);border:1px solid var(--border);padding:16px;border-radius:6px;overflow-x:auto;margin:12px 0;font-size:13px;line-height:1.5}
+.md-wrap pre code{background:none;padding:0;color:var(--text)}
+.md-wrap table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.md-wrap th{background:var(--surface2);color:var(--accent);font-weight:700;text-align:left;padding:10px 12px;border:1px solid var(--border)}
+.md-wrap td{padding:8px 12px;border:1px solid var(--border);vertical-align:top;line-height:1.5}
+.md-wrap tr:nth-child(even) td{background:rgba(17,17,40,.4)}
+.md-wrap input[type="checkbox"]{margin-right:6px;accent-color:var(--accent)}
+
+/* ===== TELEPROMPTER ===== */
+.teleprompter-btn{position:fixed;bottom:24px;right:24px;background:var(--accent);color:#fff;border:none;padding:14px 24px;font-size:15px;font-weight:700;border-radius:8px;cursor:pointer;z-index:1000;box-shadow:0 4px 20px rgba(233,69,96,.4);transition:all .2s;display:none}
+.teleprompter-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(233,69,96,.5)}
+.teleprompter-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:2000;overflow-y:auto}
+.teleprompter-overlay.open{display:block}
+.teleprompter-close{position:fixed;top:16px;right:16px;background:var(--accent);color:#fff;border:none;padding:10px 20px;font-size:14px;font-weight:700;border-radius:6px;cursor:pointer;z-index:2001}
+.teleprompter-controls{position:fixed;top:16px;left:16px;display:flex;gap:8px;z-index:2001}
+.teleprompter-controls button{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}
+.teleprompter-controls button:hover{background:var(--border)}
+.teleprompter-body{max-width:800px;margin:60px auto;padding:32px}
+.teleprompter-body .md-wrap{padding:0}
+.teleprompter-body .md-wrap p,.teleprompter-body .md-wrap li,.teleprompter-body .md-wrap td{font-size:22px;line-height:1.8}
+.teleprompter-body .md-wrap h1{font-size:36px}
+.teleprompter-body .md-wrap h2{font-size:30px}
+.teleprompter-body .md-wrap h3{font-size:24px}
+.teleprompter-body .md-wrap blockquote{font-size:22px;line-height:1.8;padding:16px 24px}
+.teleprompter-body .md-wrap blockquote p{font-size:22px}
+.teleprompter-body .md-wrap table{font-size:18px}
+.teleprompter-body .md-wrap th,.teleprompter-body .md-wrap td{padding:12px 16px;font-size:18px}
+
+/* print */
+@media print{.tab-bar,.teleprompter-btn{display:none}.tab-content{display:block!important;overflow:visible;height:auto;page-break-after:always}}
+</style>
+</head>
+<body>
+
+<!-- TAB BAR -->
+<nav class="tab-bar">
+<button class="tab-btn active" data-tab="home">Home</button>
+<button class="tab-btn" data-tab="deck">Deck</button>
+<button class="tab-btn" data-tab="capability">Capability</button>
+<button class="tab-btn" data-tab="terms">Terms</button>
+<button class="tab-btn" data-tab="script">Script</button>
+<button class="tab-btn" data-tab="sbir">SBIR Draft</button>
+</nav>
+
+<!-- ============================== HOME TAB ============================== -->
+<div class="tab-content active" id="tab-home">
+<div class="hero">
+    <div class="hero-badge">APEX Meeting Day</div>
+    <h1>GRAGG <span>ROBOTICS</span></h1>
+    <div class="subtitle">TODAY 9:30 AM &mdash; In-person with Marissa Henkel</div>
+    <div class="location">KVCOG offices, Fairfield ME</div>
+    <div class="contact-line">Marissa: <a href="tel:+12072994810">207-299-4810</a> &nbsp;|&nbsp; <a href="mailto:mhenkel@emdc.org">mhenkel@emdc.org</a></div>
+</div>
+
+<div class="home-grid">
+    <!-- Questions Card -->
+    <div class="card">
+        <h2><span class="icon">&#9733;</span> 6 Questions to Ask Marissa</h2>
+        <ol class="q-list">
+            <li><strong>AFWERX BAA timing</strong> &mdash; when does next Phase I window open?</li>
+            <li><strong>End-user letters of support</strong> &mdash; intros to AFRL / 711 HPW / AFSOC?</li>
+            <li><strong>NDA template</strong> &mdash; Maine-friendly NDA?</li>
+            <li><strong>SAM.gov session reschedule</strong> &mdash; next available in-person slot?</li>
+            <li><strong>NAICS codes</strong> &mdash; which primary for drone autonomy + dual-use?</li>
+            <li><strong>Pre-award match eligibility</strong> &mdash; grant funds match pre-award expenses?</li>
+        </ol>
+    </div>
+
+    <!-- Status Card -->
+    <div class="card">
+        <h2><span class="icon">&#9670;</span> Status Update for Marissa</h2>
+        <ul class="status-list">
+            <li>
+                <span class="status-tag tag-transit">TRANSIT</span>
+                <div><strong>LLC:</strong> Certificate in transit (mailed 5/5, USPS Priority Express + 24-hr expedite &mdash; overdue)</div>
+            </li>
+            <li>
+                <span class="status-tag tag-progress">IN PROG</span>
+                <div><strong>MTI BIF:</strong> Intake call 5/13 with Abby Osei went well. $25K likely. Drafting application.</div>
+            </li>
+            <li>
+                <span class="status-tag tag-ready">READY</span>
+                <div><strong>AFWERX SBIR:</strong> Full 15-section Phase I draft ready. Waiting for BAA window (Jun&ndash;Aug 2026).</div>
+            </li>
+            <li>
+                <span class="status-tag tag-live">LIVE</span>
+                <div><strong>Website:</strong> Live at graggrobotics.com (Netlify). Demo recorded, upload pending.</div>
+            </li>
+            <li>
+                <span class="status-tag tag-working">PROTO</span>
+                <div><strong>Prototype:</strong> Working 4-drone swarm UI in PX4 SITL.</div>
+            </li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- ============================== DECK TAB ============================== -->
+<div class="tab-content" id="tab-deck">
+<div class="deck-upload" id="deckUploadArea">
+    <div class="deck-upload-box" id="deckDropZone">
+        <h2>Upload Pitch Deck</h2>
+        <p>Drag &amp; drop a .pptx file or click to browse</p>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:20px">Renders slides in-browser using JSZip &mdash; no PowerPoint needed</p>
+        <input type="file" id="deckFileInput" accept=".pptx,.ppt" style="display:none">
+        <button class="deck-btn" onclick="document.getElementById('deckFileInput').click()">Choose .pptx File</button>
+        <div class="deck-loading" id="deckLoading">Loading presentation...</div>
+    </div>
+</div>
+<div class="deck-presenter" id="deckPresenter">
+    <div class="deck-toolbar">
+        <div class="dtitle" id="deckFileName">Presentation</div>
+        <div class="deck-controls">
+            <button onclick="deckToggleThumbs()">Thumbnails</button>
+            <button onclick="deckPrev()">&#9664; Prev</button>
+            <span class="slide-counter"><span id="deckCurNum">1</span> / <span id="deckTotNum">1</span></span>
+            <button onclick="deckNext()">Next &#9654;</button>
+            <button onclick="deckFullscreen()" style="background:var(--accent);border-color:var(--accent);color:#fff">Present</button>
+            <button onclick="deckReset()">New File</button>
+        </div>
+    </div>
+    <div class="deck-main">
+        <div class="deck-thumbs" id="deckThumbPanel"></div>
+        <div class="deck-view" id="deckSlideView">
+            <button class="dnav dleft" onclick="deckPrev()">&#9664;</button>
+            <img class="dslide-img" id="deckMainSlide" src="" alt="Slide">
+            <button class="dnav dright" onclick="deckNext()">&#9654;</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- ============================== CAPABILITY TAB ============================== -->
+<div class="tab-content" id="tab-capability">
+<div class="md-wrap" id="md-capability"></div>
+</div>
+
+<!-- ============================== TERMS TAB ============================== -->
+<div class="tab-content" id="tab-terms">
+<div class="md-wrap" id="md-terms"></div>
+</div>
+
+<!-- ============================== SCRIPT TAB ============================== -->
+<div class="tab-content" id="tab-script">
+<div class="md-wrap" id="md-script"></div>
+</div>
+
+<!-- ============================== SBIR DRAFT TAB ============================== -->
+<div class="tab-content" id="tab-sbir">
+<div class="md-wrap" id="md-sbir"></div>
+</div>
+
+<!-- TELEPROMPTER BUTTON -->
+<button class="teleprompter-btn" id="teleprompterBtn" onclick="openTeleprompter()">TELEPROMPTER</button>
+
+<!-- TELEPROMPTER OVERLAY -->
+<div class="teleprompter-overlay" id="teleprompterOverlay">
+<button class="teleprompter-close" onclick="closeTeleprompter()">EXIT (Esc)</button>
+<div class="teleprompter-controls">
+    <button onclick="tpFontSize(-2)">A-</button>
+    <button onclick="tpFontSize(2)">A+</button>
+    <button onclick="tpFullscreen()">Fullscreen</button>
+</div>
+<div class="teleprompter-body" id="teleprompterBody">
+    <div class="md-wrap" id="md-teleprompter"></div>
+</div>
+</div>
+
+<script>
+// ===== TAB NAVIGATION =====
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+const tpBtn = document.getElementById('teleprompterBtn');
+
+tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(tc => tc.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        tpBtn.style.display = btn.dataset.tab === 'script' ? 'block' : 'none';
+    });
+});
+
+// ===== MARKDOWN PARSER =====
+function parseMd(src) {
+    let html = src;
+    // Normalize line endings
+    html = html.replace(/\r\n/g, '\n');
+
+    // Escape HTML entities (but preserve structure)
+    html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    // Fenced code blocks
+    html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (m, lang, code) => {
+        return '<pre><code>' + code.trim() + '</code></pre>';
+    });
+
+    // Inline code (before other inline)
+    html = html.replace(/`([^`\n]+?)`/g, '<code>$1</code>');
+
+    // Horizontal rules
+    html = html.replace(/^\n?---\n?$/gm, '<hr>');
+    html = html.replace(/^\n?\*\*\*\n?$/gm, '<hr>');
+
+    // Headers
+    html = html.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+    // Bold + italic
+    html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+    // Links
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+
+    // Images
+    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%">');
+
+    // Tables
+    html = html.replace(/((?:^\|.+\|\n)+)/gm, (block) => {
+        const rows = block.trim().split('\n');
+        if (rows.length < 2) return block;
+        let table = '<table>';
+        rows.forEach((row, ri) => {
+            // Skip separator row
+            if (/^\|[\s\-:|]+\|$/.test(row)) return;
+            const cells = row.split('|').filter((c, i, a) => i > 0 && i < a.length - 1);
+            const tag = ri === 0 ? 'th' : 'td';
+            table += '<tr>' + cells.map(c => `<${tag}>${c.trim()}</${tag}>`).join('') + '</tr>';
+        });
+        table += '</table>';
+        return table;
+    });
+
+    // Blockquotes (multi-line)
+    html = html.replace(/((?:^&gt; ?.+\n?)+)/gm, (block) => {
+        const inner = block.replace(/^&gt; ?/gm, '').trim();
+        return '<blockquote>' + inner + '</blockquote>';
+    });
+
+    // Checkbox lists
+    html = html.replace(/^- \[x\] (.+)$/gm, '<li><input type="checkbox" checked disabled> $1</li>');
+    html = html.replace(/^- \[ \] (.+)$/gm, '<li><input type="checkbox" disabled> $1</li>');
+
+    // Unordered lists
+    html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+
+    // Ordered lists
+    html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+
+    // Wrap consecutive <li> in <ul>
+    html = html.replace(/((?:<li>[\s\S]*?<\/li>\n?)+)/g, '<ul>$1</ul>');
+
+    // Paragraphs: lines that aren't already HTML tags
+    const lines = html.split('\n');
+    const result = [];
+    let inBlock = false;
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const trimmed = line.trim();
+        if (trimmed === '') {
+            if (!inBlock) result.push('');
+            continue;
+        }
+        if (/^<(h[1-6]|ul|ol|li|table|tr|th|td|pre|blockquote|hr|img)/.test(trimmed) || /<\/(table|ul|ol|pre|blockquote)>/.test(trimmed)) {
+            result.push(line);
+            inBlock = /^<(table|ul|ol|pre|blockquote)/.test(trimmed);
+            if (/<\/(table|ul|ol|pre|blockquote)>/.test(trimmed)) inBlock = false;
+        } else if (inBlock) {
+            result.push(line);
+        } else {
+            result.push('<p>' + trimmed + '</p>');
+        }
+    }
+    return result.join('\n');
+}
+
+// ===== EMBEDDED MARKDOWN CONTENT =====
+const MD_SCRIPT = `# MTI Intake Call — Word-for-Word Script
+
+**Meeting:** Wednesday May 13, 2026 · 10:00 AM Eastern · Virtual (link will arrive in your inbox)
+**With:** Abigail "Abby" Naana Osei, Investment Officer, Maine Technology Institute
+**App ID:** 2428739 — Business Innovation Funding (BIF), Gragg Robotics
+**Format:** 1 hour, structured around 8 BIF growth/success areas
+
+**Mental model:** This is a MONEY conversation. Abby decides if you advance toward a BIF award ($10K–$250K range). She's not adversarial — she's looking for reasons to YES — but she also has a duty to filter out projects that aren't ready. Your job is to come across as **competent, calibrated, and coachable**.
+
+> **Three things she's secretly evaluating:** (1) Do you understand your own market? (2) Can you execute? (3) Are you the kind of founder who follows through? She'll never ask these directly. She'll infer them from how you answer the 8 areas.
+
+---
+
+## Pre-call — what to do TODAY (Tue 5/12) before you go offline
+
+- [ ] Confirm Abby gets the deck via email (you committed to "Tuesday" in your reply — Claude will send it for you)
+- [ ] Read this script through ONCE this evening
+- [ ] Read \`04_terms_cheatsheet.md\` once — pay attention to sections 1, 2, and 8 (likely-questions answers)
+- [ ] Charge laptop, headphones, phone
+
+## Pre-call — what to do tomorrow morning (Wed 5/13)
+
+- [ ] **9:00 AM** — laptop online, this script open in one window, deck open in another, Gmail open in a third
+- [ ] **9:30 AM** — restroom, water bottle full, snack
+- [ ] **9:45 AM** — Teams/Zoom link should be in your inbox by now. If not, email Abby: \`aosei@mainetechnology.org\` — "Standing by for the meeting link"
+- [ ] **9:55 AM** — click the link, allow camera + mic, test audio one more time
+- [ ] **9:58 AM** — deep breath. You've done your homework. You're ready.
+- [ ] **10:00 AM** — live
+
+---
+
+## OPENING — first 60 seconds (when she joins)
+
+> **"Hi Abby, thanks for the time. Quick warning, first-time founder here so feel free to slow me down on any MTI-side terms I haven't seen before. I'm Lucas Gragg with Gragg Robotics — universal multi-drone control software plus a hardware sensor pod that retrofits onto any drone. Quick status update before we dive in: Maine LLC was mailed last week with expedited processing, Certificate is back / arriving any day now, and APEX has me lined up for SAM.gov registration in person once the docs are in hand. Happy to walk through the deck if you want a 5-minute overview, or jump straight into the 8 areas — what works best for you?"**
+
+That last sentence matters. **Let her drive the format.** Most counselors will say "let's hit the 8 areas, you can reference the deck as we go." Some say "give me the 5-min walkthrough first." Match her preference.
+
+> **If your LLC Certificate already arrived:** swap "is back / arriving any day" → "came back yesterday and the EIN is queued for today"
+> **If she opens with general MTI program overview:** listen, take notes, don't interrupt. She does this in every intake. It usually takes 5-10 minutes.
+
+---
+
+## THE 8 AREAS — your prepared answers
+
+She'll cover these in roughly this order. **Each answer is 30-60 seconds.** Don't ramble. End with a hook ("happy to go deeper if useful") so she can probe where she wants.
+
+---
+
+### 1. TEAM — what are your team's skills and experiences?
+
+> **"It's me, sole founder, full-time committed. My background is operations and logistics — I've spent the last several years running route logistics for a regional package-delivery contractor, which means I know how to keep a fleet of moving assets coordinated across geography under time pressure. Different domain, same problem.**
+>
+> **On the technical side, I've built the entire software stack you'll see in the deck — Python control system, MAVLink integration, the operator UI, the simulation environment. Working prototype runs four drones today.**
+>
+> **I'm not pretending to be a hardware engineer — for the physical pod build I plan to bring on a contract hardware engineer for the integration phase. That's specifically what some of the BIF money would go toward."**
+
+**If she asks "why are you the right person to lead this":**
+> **"I've been around drone hobbyist communities since high school, but more importantly I have the operations background to know what an OPERATOR actually wants out of this software. Most drone-autonomy startups are built by hardware people who underestimate the UI side. I'm building it from the operator-out, not the firmware-up."**
+
+**Key:** be honest about being solo. Don't oversell. Solo with a clear plan to bring in specific contract help is normal at this stage.
+
+---
+
+### 2. PROBLEM and VISION — what are you solving?
+
+> **"Two specific problems.**
+>
+> **First, multi-drone operations today are stuck in single-pilot, single-vendor mode. Every drone manufacturer ships its own ground station and they don't talk to each other. So if a Maine utility wants to inspect 50 miles of powerline with four drones, they need four pilots and probably four pieces of software. The labor cost kills the ROI of multi-drone work.**
+>
+> **Second, mission re-tasking mid-flight is brittle. Search and rescue teams pick up a new lead while drones are airborne — current systems require landing and restarting. That's catastrophic when minutes matter.**
+>
+> **My vision: one operator commanding any drone — not the brand-specific ones, ANY MAVLink-compatible drone — through a single RTS-style interface. Plus a bolt-on sensor pod that retrofits onto existing drones so customers don't have to replace their fleet. Same stack scales from inspection to SAR to defense."**
+
+---
+
+### 3. VALUE PROP — what's your value proposition?
+
+> **"Three pillars.**
+>
+> **One — vendor-agnostic. We work with any MAVLink flight controller — Pixhawk, PX4, ArduPilot — so customers aren't locked into one drone manufacturer. That alone saves them six figures over a fleet refresh cycle.**
+>
+> **Two — solo-operator economics. One operator commanding 4 to 12 drones means roughly 10x labor leverage compared to single-pilot models. That's the ROI lever that makes drone fleets actually pencil out for utilities and SAR teams.**
+>
+> **Three — defense-plus-civilian dual-use. The same platform serves AFWERX defense topics AND commercial verticals. AFWERX explicitly favors dual-use because it shows market beyond government. We're built that way from day one."**
+
+---
+
+### 4. PRODUCT — how will you prototype, test, commercialize?
+
+> **"Three stages.**
+>
+> **Stage 1, the prototype, is largely complete on the software side. I have a working multi-drone control UI running in PX4 SITL simulation today — four drones, full command stack, real-time telemetry. What I don't have yet is the hardware pod, which is where the BIF funding plays.**
+>
+> **Stage 2 is the hardware build. POC tier is around $660 per drone — Raspberry Pi 5, visible camera, RFD900 long-range radio. Production tier is around $4,200 per drone, adding thermal imaging and LiDAR. Total for a 4-drone POC is roughly $2,600 in hardware plus contractor time for integration.**
+>
+> **Stage 3 is commercialization. I want to land one paying customer pilot — most likely a Maine utility doing powerline or substation inspection — within six months of having flying hardware. Revenue model is SaaS on the UI plus hardware lease or sale on the pod, with optional service contract."**
+
+---
+
+### 5. MARKET — what do you know about the market?
+
+> **"Three verticals where I've done initial research, ranked by addressability.**
+>
+> **First, rural infrastructure inspection. Maine has hundreds of miles of rural transmission line. Utilities like CMP and Versant currently spend $1,500 an hour for helicopter inspection. A 4-drone fleet replaces 70-80% of that work at maybe $200 an hour all-in. The TAM in Maine alone is in the millions per year just for utilities.**
+>
+> **Second, search and rescue. Maine has thousands of square miles of woodland. Game Wardens, K9 SAR, Civil Air Patrol all operate manually today. Multi-drone area coverage is roughly 5x faster than ground search in the first hour, which is the golden hour for survival outcomes.**
+>
+> **Third, defense via AFWERX. Air Force is funding swarm autonomy at hundreds of millions a year. Phase I awards are $75K to $150K, Phase II is $750K to $1.5 million. Six- to twelve-month windows.**
+>
+> **I'm civilian-first by deliberate choice — defense is a track but not the lead. AFWERX scoring favors dual-use applicants over pure-defense ones."**
+
+---
+
+### 6. BUSINESS MODEL — revenue, financials, organization?
+
+> **"Revenue model is three-stream.**
+>
+> **One, SaaS subscription on the operator UI — call it $200 to $500 per month per fleet, recurring.**
+>
+> **Two, hardware sale or lease on the pod — $4K to $12K per drone for the production tier, one-time or amortized.**
+>
+> **Three, service contracts — installation, training, mission planning support, recurring annual.**
+>
+> **Stage 1 financial target: one paying customer pilot at $10K to $30K, plus the BIF grant, plus AFWERX Phase I when the window opens. Total runway needed for stage 1 is roughly $115K to $475K depending on which mix of grants land.**
+>
+> **Organizationally — Maine LLC, sole owner, member-managed. Will likely add a hardware contractor under a 1099 arrangement for the build phase, no employees yet. If we get to Stage 2 funding I'd convert one of those contractors to a full hire."**
+
+**If she asks "what's your match for the BIF":**
+> **"Cash match: $5K of personal capital already committed, plus whatever the AFWERX Phase I award contributes if it lands. Sweat equity: my full-time labor on the project at fair market rates. I understand cash match is weighted higher — happy to follow your guidance on the right mix for our specific request."**
+>
+> *(IMPORTANT: This is also where you ASK her to clarify what Marissa told you. See "Questions to Ask Abby" below — question 1.)*
+
+---
+
+### 7. SCALE — how do you grow?
+
+> **"Stage 1, six to nine months: 4-drone POC working end-to-end, Maine LLC formed, Part 107 license, one paying customer pilot. Realistic raise $115K to $475K mixing MTI BIF, AFWERX Phase I, and customer pilot revenue.**
+>
+> **Stage 2, twelve to eighteen months from now: 12-drone production fleet, BVLOS waiver, three to five paying customers, AFWERX Phase II submission, and a small seed round. Realistic raise $1.85M to $4M total mixing SBIR Phase II, customer revenue, and equity.**
+>
+> **Stage 3 is multi-domain expansion — same UI, same pod design, scales to ground rovers and surface vessels. That's a 24-36 month horizon, not what we're talking about today.**
+>
+> **Scaling bottlenecks I can see: hardware supply chain on Pixhawk-compatible boards, regulatory pace on BVLOS waivers in Maine, and finding contract hardware engineers who want startup risk in Maine specifically."**
+
+---
+
+### 8. EXIT / SUSTAINABILITY — what does long-term look like?
+
+> **"Honest answer — too early to plan a hard exit, but I think about it in two paths.**
+>
+> **Path one is sustainable independence — recurring SaaS plus hardware refresh cycles. A few hundred customers each paying $5K to $20K a year is a real business that doesn't need to exit.**
+>
+> **Path two is strategic acquisition. The natural acquirers are larger drone-autonomy companies — Skydio, Anduril, Shield AI, BRINC, Easy Aerial — or a defense prime that wants in on swarm autonomy. Five to seven year horizon for that conversation.**
+>
+> **What I'm NOT planning is a quick flip. I'm building this to operate, not to sell next year. If MTI invests, I want you confident I'll still be running it three years from now."**
+
+---
+
+## QUESTIONS TO ASK HER (have these ready — most counselors ask "any questions for me?")
+
+### #1 — Match clarification (HIGH PRIORITY, do not skip)
+
+> **"Marissa Henkel at APEX mentioned that some of MTI's funding is awarded as lump sum without strict 1:1 match — but the BIF page says 1:1 match required. Can you clarify what's actually expected for a $25K BIF request? Cash match weighted heaviest, sweat equity counts but less, no other Maine-state-grant funds — is that the right read?"**
+
+### #2 — Disbursement model
+
+> **"Is BIF reimbursement-based — I spend, then submit receipts — or milestone-based — you pay tranches as I hit deliverables? That matters for my cashflow planning."**
+
+### #3 — Common rejection reasons
+
+> **"What are the top one or two reasons applicants in my range get sent back for revision? I'd rather hear it now than after I submit."**
+
+### #4 — Timeline
+
+> **"From submitting a full BIF application, what's typical decision turnaround — 30 days, 60, longer?"**
+
+### #5 — Other MTI programs
+
+> **"Beyond BIF, are there other MTI vehicles that fit a Stage 1 hardware-build phase — TechStart, MERC, anything else? I'd rather find out from you than miss something."**
+
+### #6 — AFWERX coordination
+
+> **"Many of your portfolio companies do MTI plus AFWERX. Have you seen patterns where the two grants reinforce each other on timing or scope? Anything I should structure differently in the BIF app to set up a strong AFWERX submission later?"**
+
+---
+
+## CLOSING — last 90 seconds
+
+When she signals wrap-up, take initiative:
+
+> **"Abby, this has been incredibly useful. Three commitments I'm taking away from this call: [list whatever she specifically asked for or recommended]. What's the right next step on my end — submit a full BIF application now, or is there a pre-application conversation or document she'd want to see first?"**
+
+After the call, within two hours:
+1. Email her a one-page recap with what you committed to
+2. Update \`funding/FUNDING_TRACKER.md\` with date, agreed next steps, anything she said about timeline
+3. If she gave you any homework (financial projections, customer letters of interest, a specific application section), START it that day
+
+---
+
+## What NOT to do
+
+- Don't promise revenue numbers you haven't validated. "We'll do $1M in year one" is a credibility-killer if you can't back it. Use ranges and say "based on what I know today."
+- Don't badmouth competitors. Federal world is small. The drone person you trash-talk to Abby might be advising her next month.
+- Don't ask for money in the call. The BIF application IS the ask. The intake is the conversation about whether the ask is worth submitting.
+- Don't oversell the team. "Just me, plus contractors as needed" is a stronger answer than "we have a robust team" when you're solo.
+- Don't promise to apply for things you won't follow through on. Counselors track this.
+
+---
+
+## If something goes wrong
+
+| Problem | What to say |
+|---|---|
+| Internet drops | Reconnect on phone hotspot. Email Abby: "Lost connection, reconnecting." |
+| Abby asks something you don't know | "I don't know — what should I be reading on that?" Calibration > guessing. |
+| You realize mid-call your numbers were wrong | "Actually let me correct that — the right number is X." Abby will appreciate the correction more than the error. |
+| She seems unimpressed with an answer | Don't double down. "Where would you push me to think harder?" — give her permission to coach you. Counselors love that. |
+| She asks if you've talked to other agencies | "APEX is my first formal touchpoint. They're set up to walk me through SAM.gov in person once the docs are in hand. AFWERX is the next agency target." |
+
+---
+
+## Five sentences to remember
+
+1. **"First-time founder, feel free to slow me down on terms."** Sets the bar to honest, not performative.
+2. **"Cash match $5K plus full-time sweat equity, happy to follow your guidance on the right mix."** Concrete + coachable.
+3. **"Civilian-first by deliberate choice — defense is a track, not the lead."** Differentiates you from the typical AFWERX-only applicant.
+4. **"I'm building this to operate, not to sell next year."** Counselors hear "quick flip" pitches all day. This is the antidote.
+5. **"Where would you push me to think harder?"** The single best line for getting unfiltered coaching.`;
+
+const MD_TERMS = `# APEX Intake — Terms & Acronyms Cheat Sheet
+
+**For:** Lucas Gragg, intake meeting with Marissa Henkel (Procurement Counselor, Maine APEX), tentative Tue May 6 2026 9 AM
+**Purpose:** Fast lookup so you don't blank when Marissa drops jargon. Read once before the call. Skim during the call if needed.
+
+**Standard caveat:** this is a quick-reference. Numbers and program details change yearly. If Marissa says "the current threshold is X," trust her — she lives in this world.
+
+---
+
+## 1. SBIR / STTR — the core program
+
+| Term | What it is | What to say if asked |
+|---|---|---|
+| **SBIR** | Small Business Innovation Research. Federal program funding small companies (<500 employees) doing R&D the gov't wants. ~$4B/yr across ~13 agencies. | "Yes, AFWERX SBIR Phase I is our primary near-term target." |
+| **STTR** | Small Business Tech Transfer. Same as SBIR but **requires a research-institution partner** (university or federal lab). ~$1B/yr. | "Open to STTR if we can partner with UMaine — would need APEX's read on whether that strengthens the application." |
+| **Phase I** | Feasibility study. **6-12 mo, ~$50k-$300k** depending on agency. AFWERX Phase I is typically **$75k-$150k**. | "Phase I demonstrates feasibility — for us that's hardware-in-loop integration of the universal pod with three different airframes." |
+| **Phase II** | Prototype + R&D. **~12-24 mo, ~$750k-$1.5M+**. Only Phase I winners are eligible. AFWERX runs ~$1M typical. | "Phase II is the production fleet — 12 drones operational with one paying customer pilot." |
+| **Phase III** | Commercialization. **No SBIR funds** but unlocks sole-source contracts and follow-on work. | "Phase III is the commercial deployment — paying customers without further SBIR money." |
+| **D2P2** / **Direct-to-Phase II** | Skip Phase I if you can prove feasibility was already done with non-SBIR funds. AFWERX uses this. | "Worth discussing — we have a working simulation prototype. Could that count as feasibility evidence for D2P2?" |
+| **Topic** | A specific R&D problem an agency is funding. Each SBIR cycle has 100s of topics. | "We're tracking AFWERX topics around drone-swarm autonomy and contested-environment ops." |
+| **Open Topic** | AFWERX's catch-all — "any innovative idea relevant to USAF/USSF." Lower bar than topic-specific calls. | "Open Topic is our backup if no specific topic matches in the next cycle." |
+| **BAA** | Broad Agency Announcement. The actual call-for-proposals doc. Topics live inside the BAA. | "We're watching for the next AFWERX BAA — estimated June-Aug 2026." |
+| **WOSB / SDVOSB / HUBZone / 8(a)** | Set-aside categories for women-owned, service-disabled-vet-owned, etc. **You're none of these.** | "I'm not a set-aside-eligible business. Standard small-business pool only." |
+
+---
+
+## 2. Federal registrations (you'll need ALL of these)
+
+| Term | What it is | Status |
+|---|---|---|
+| **SAM.gov** | System for Award Management. THE federal contractor registry. **Must be registered before submitting any SBIR.** Free. ~2-3 weeks first time. | **Not yet registered** — this is the #1 thing APEX can help with. |
+| **UEI** | Unique Entity Identifier. 12-char alphanumeric. **Replaced DUNS in April 2022.** Auto-generated when you register on SAM.gov. | "Will be assigned via SAM.gov once registered." |
+| **DUNS** | Dun & Bradstreet number. **DEPRECATED — don't say you have one.** If Marissa mentions it she's testing or older. | "I understand UEI replaced DUNS in 2022 — I'll get one via SAM.gov." |
+| **CAGE Code** | Commercial and Government Entity. 5-char ID. Auto-issued during SAM.gov registration. Identifies you to DoD specifically. | "Will come with the SAM.gov registration." |
+| **NAICS Code** | North American Industry Classification System. 6-digit business category. You pick one or more. **For Gragg Robotics:** likely **541715** (R&D in Physical/Engineering/Life Sciences) or **336411** (Aircraft Mfg) or **541330** (Engineering Services). | "Probably 541715 — R&D in physical/engineering sciences. Open to your input." |
+| **SBC** | Small Business Concern. Self-cert at <500 employees + US-owned. You qualify. | "Yes, sole proprietor under SBC threshold." |
+| **GSA Schedule** | Pre-negotiated price list for selling to gov't. Not relevant for SBIR. | Don't bring up — out of scope. |
+
+---
+
+## 3. AFWERX-specific
+
+| Term | What it is |
+|---|---|
+| **AFWERX** | Air Force innovation arm. Runs SBIR/STTR, Pitch Days, and several special vehicles (TACFI, STRATFI). Located at Wright-Patterson AFB. |
+| **AFRL** | Air Force Research Laboratory. The AF's R&D org. Some AFWERX topics route through AFRL technical sponsors. |
+| **TACFI** | Tactical Funding Increase. Adds ~$1.7M to a Phase II for accelerated commercialization. Requires matching private-investor commitment. |
+| **STRATFI** | Strategic Funding Increase. Adds up to $15M to a Phase II for major scale-up. Requires significant private + Air Force matching. |
+| **Pitch Day** | AFWERX's "shark tank" — pitch on stage, can win same-day Phase I awards. ~3-5/yr in different cities. |
+| **Open Topic Phase I** | AFWERX's standing call for any innovation relevant to the USAF. **This is the most likely entry point for us.** |
+| **Customer Discovery** | AFWERX-mandated step where you interview ~15+ potential AF end-users to validate need. They take this seriously. |
+| **Dual-Use** | Commercial + defense applicability. AFWERX prefers dual-use because it shows market beyond government. **Our pitch is naturally dual-use** (utility / SAR / agri civilian + AF defense). |
+
+---
+
+## 4. Export controls (real risk for drone autonomy companies)
+
+| Term | What it is | What to say |
+|---|---|---|
+| **ITAR** | International Traffic in Arms Regulations. Covers items on the **USML** (US Munitions List). Drone autonomy with certain capabilities = **USML Category VIII**. Means: no foreign hires, no foreign sales without State Dept license. | "I'm aware drone-autonomy stacks can fall under USML Cat VIII. Want to make sure we're compliant from day one — interested in your read." |
+| **EAR** | Export Administration Regulations. The "lighter" controls — covers dual-use items via the **CCL** (Commerce Control List). | "Understanding ITAR vs EAR is on my homework list." |
+| **DDTC** | Directorate of Defense Trade Controls. State Dept body that runs ITAR. Registration is **$2,250/yr minimum**. | "I'd register with DDTC if we go ITAR-controlled." |
+| **TAA** | Trade Agreements Act. Restricts where products can be made for federal sale. Made-in-China components are a problem. | "Our hardware BOM avoids covered countries — using Pixhawk variants from Holybro (Vietnam/Taiwan) and US-made compute." |
+| **Section 889 / NDAA** | Bans federal use of Huawei/ZTE/DJI/Hikvision/Hytera. Defense agencies extra-strict. **DJI ban specifically affects our market positioning.** | "DJI ban is actually tailwind for us — federal agencies need a non-DJI alternative for fleet ops." |
+
+---
+
+## 5. Maine APEX program details
+
+| Term | What it is |
+|---|---|
+| **APEX** | Assistance to Procuring Entities & Exchanges. Formerly **PTAC** (Procurement Technical Assistance Centers). DoD-funded, free-to-business. |
+| **EMDC** | Eastern Maine Development Corporation. The org that hosts Maine APEX. Bangor-based, 40 Harlow St. |
+| **Procurement Counselor** | Marissa's title. Helps small businesses navigate federal contracting — proposal review, registration walk-throughs, agency targeting. |
+| **Kennebec County** | Marissa's territory. Includes Augusta + Waterville (you). |
+| **APEX Network** | Nationwide — ~95 APEX centers, 600+ counselors. They sometimes refer cases to specialists in other states. |
+
+---
+
+## 6. Drone tech terms (Marissa may know surface-level)
+
+| Term | What it is |
+|---|---|
+| **BVLOS** | Beyond Visual Line of Sight. Flying drones outside what the operator can see directly. Requires FAA waiver. **Critical for SAR + powerline inspection.** |
+| **VLOS** | Visual Line of Sight. Default Part 107 ops — pilot must see the drone. Limits range to ~half-mile. |
+| **Part 107** | FAA rule for commercial drone ops. Requires written test ($175). **Status: Not yet — on Lucas's near-term list.** |
+| **MAVLink** | The de-facto standard messaging protocol between flight controllers and ground stations. Open-source. **This is what makes our software universal.** |
+| **PX4** | Open-source flight controller firmware. Industry standard. Runs on Pixhawk hardware. |
+| **ArduPilot** | Older open-source flight stack — competitor to PX4, more conservative. Many existing fleets run ArduPilot. **We support both.** |
+| **Pixhawk** | Open-hardware flight controller spec (Holybro, mRobotics, etc. make compatible boards). Industry standard for MAVLink-speaking drones. |
+| **Pi 5 / Jetson Orin** | Companion computers — handle mission planning, video processing, ML inference on the drone. Jetson has GPU for CV. |
+| **RTK GPS** | Real-Time Kinematic GPS. Centimeter-accurate positioning vs ~3-5m for standard GPS. Needed for precision tasks (survey, agri). |
+| **Mesh radio** | Long-range comms (RFD900, Doodle Labs Helix). Used instead of cellular for swarm comms — more reliable, no carrier dependency. |
+
+---
+
+## 7. Acronym jukebox (alphabetical, for fast lookup)
+
+- **AFRL** — Air Force Research Laboratory
+- **AFWERX** — Air Force innovation arm
+- **APEX** — Assistance to Procuring Entities & Exchanges (you're talking to one)
+- **ArduPilot** — drone flight stack (alt to PX4)
+- **BAA** — Broad Agency Announcement (the SBIR call-for-proposals doc)
+- **BVLOS** — Beyond Visual Line of Sight
+- **CAGE** — DoD vendor ID code
+- **CCL** — Commerce Control List (under EAR)
+- **CONOPS** — Concept of Operations (how you'd actually use the system)
+- **D2P2** — Direct-to-Phase II
+- **DDTC** — Directorate of Defense Trade Controls (runs ITAR)
+- **DHS** — Dept of Homeland Security (alt agency for SBIR)
+- **DoD STTR** — research-institution-partner SBIR variant
+- **DUNS** — DEPRECATED, replaced by UEI
+- **EAR** — Export Administration Regulations
+- **EMDC** — Eastern Maine Development Corp (Marissa's employer)
+- **FAA** — Federal Aviation Admin
+- **GSA Schedule** — pre-negotiated gov't price list (not relevant)
+- **HUBZone** — set-aside category (not relevant for you)
+- **ITAR** — defense export controls
+- **MAVLink** — drone messaging protocol
+- **NAICS** — industry classification code (yours probably 541715)
+- **NDAA Section 889** — bans Huawei/DJI/etc from federal use
+- **NSF SBIR** — civilian backup track to AFWERX
+- **OUSD(R&E)** — Office of Under Secretary of Defense, Research & Engineering
+- **Part 107** — FAA commercial drone rule
+- **Phase I/II/III** — SBIR funding stages
+- **Pixhawk** — flight controller standard
+- **PTAC** — old name for APEX
+- **PX4** — drone flight stack
+- **RTK GPS** — centimeter-accurate GPS
+- **SAM.gov** — federal contractor registry
+- **SBC** — Small Business Concern (you qualify)
+- **SBIR** — Small Business Innovation Research
+- **SDVOSB** — Service-Disabled Vet-Owned Small Business
+- **STRATFI** — AFWERX big-money Phase II add-on
+- **STTR** — research-partner SBIR
+- **TAA** — Trade Agreements Act (country-of-origin rules)
+- **TACFI** — AFWERX Phase II accelerator
+- **TPOC** — Technical Point of Contact (the gov't tech rep on a contract)
+- **TRL** — Technology Readiness Level (1-9 scale; we're around TRL 4)
+- **UEI** — Unique Entity Identifier (SAM.gov assigns it)
+- **USML** — US Munitions List (drones in Cat VIII)
+- **VLOS** — Visual Line of Sight
+- **WOSB** — Women-Owned Small Business
+
+---
+
+## 8. Common questions Marissa might ask & strong answers
+
+> **"What's your TRL?"**
+TRL 4 — components validated in lab/sim environment. Working software prototype in mock simulation, hardware integration starting May.
+
+> **"Have you registered on SAM.gov?"**
+Not yet — that's actually one of the top things I'm hoping APEX can help with. I want to do it right the first time.
+
+> **"What's your business structure?"**
+Maine LLC, formation in progress this month (May 2026). Sole owner, US citizen.
+
+> **"Have you done customer discovery?"**
+Initial conversations with [pick: rural utilities like CMP, Maine SAR teams, Kennebec County Sheriff]. Plan to formalize 15+ interviews as part of any AFWERX submission.
+
+> **"What's your funding to date?"**
+$5K self-funded for hardware. Submitted MTI Business Innovation Funding self-assessment ($25K ask) — they replied "may be a fit."
+
+> **"Why drone autonomy?"**
+Background: [Lucas — fill in your honest 1-sentence reason — engineering interest, market gap, mission, whatever]. Spent the last [X months] building a working software prototype.
+
+> **"What agencies have you talked to?"**
+None directly yet — APEX is my first formal touchpoint. Plan to use your guidance to identify which to approach first.
+
+> **"How will you use APEX services?"**
+Three things: SBIR Phase I package review before the next AFWERX window, SAM.gov walkthrough, and your read on whether other agencies (DoD STTR, DHS, DoE for grid inspection, NASA) fit alongside AFWERX.
+
+> **"Do you have a teaming partner?"**
+Currently solo. Open to teaming — would value your view on whether a Maine-based research partner (UMaine?) would strengthen our position for STTR.
+
+> **"Are you ITAR-aware?"**
+Yes — drone autonomy can fall under USML Category VIII. Want to make sure we're compliant from day one. Interested in your guidance on whether to register with DDTC pre-emptively or wait until needed.
+
+> **"What's your timeline?"**
+Maine LLC by mid-May. SAM.gov registration June. Part 107 license July. AFWERX SBIR Phase I submission whenever the next window opens (estimated June-Aug 2026). Hardware build complete summer.`;
+
+const MD_CAPABILITY = `# Capability Statement — Gragg Robotics
+
+> **Note:** This is the standard 1-page document every federal contractor maintains. Marissa will almost certainly ask for one — having it ready tells her you're prepared. Format is industry-standard: company info top, core competencies + differentiators + experience as side-by-side blocks, contact at the bottom. PDF version recommended (use Word/LibreOffice → export PDF).
+>
+> **Status of fields:**
+> - **TBD** = not yet established (e.g., UEI before SAM.gov registration)
+> - **DRAFT** = my best guess, Lucas should confirm/replace
+>
+> Once SAM.gov registration is done and the LLC is formed, regenerate this with real values.
+
+---
+
+## GRAGG ROBOTICS
+
+**Universal Multi-Drone Control Systems**
+
+> *One UI. Any drone. Any mission.*
+
+---
+
+### Company Profile
+
+| Field | Value |
+|---|---|
+| Legal Name | Gragg Robotics, LLC *(Maine LLC, formation in progress May 2026)* |
+| DBA | Gragg Robotics |
+| Founder / CEO | Lucas Gragg |
+| Address | 16 Boutelle Ave, Waterville, ME 04901 |
+| Phone | (207) 242-7351 |
+| Email | lukegragg@gmail.com |
+| Website | TBD |
+| **UEI** (SAM.gov) | **TBD — registering 2026** |
+| **CAGE Code** | **TBD — pending SAM.gov** |
+| **NAICS** (primary) | **541715** — Research & Development in the Physical, Engineering, and Life Sciences |
+| NAICS (secondary) | 336411 (Aircraft Mfg) · 541330 (Engineering Services) · 541512 (Computer Systems Design) |
+| Small Business | Yes (sole proprietor / Maine LLC, < 500 employees) |
+| Set-Aside Categories | None claimed |
+| Cage Code | TBD |
+| Year Established | 2026 |
+
+---
+
+### Core Competencies
+
+- **Multi-drone autonomy software** — RTS-style operator interface for fleets of 4–12 drones, MAVLink-native, vendor-agnostic
+- **Universal hardware integration** — bolt-on sensor + control pods compatible with any Pixhawk / PX4 / ArduPilot airframe
+- **Mission-level control primitives** — TARGET, FOLLOW, SWEEP, WAYPOINT, GO HOME, ENGAGE — abstracted from low-level flight control
+- **Ground-station systems** — Flask + WebSocket real-time telemetry dashboards, sub-second command latency
+- **Simulation-to-hardware pipeline** — same control software runs in PX4 SITL simulation and on production hardware
+
+### Differentiators
+
+- **Vendor-agnostic by design** — works with any MAVLink-compatible flight controller, not locked to a single drone manufacturer
+- **Solo-operator economics** — designed for one operator commanding 4–12 drones simultaneously, ~10× labor leverage vs single-pilot models
+- **Defense + civilian dual-use** — same platform serves DoD/AFWERX use cases and commercial verticals (utility inspection, SAR, agriculture)
+- **Maine-based with rural test environment** — natural fit for BVLOS development, low-cost ops, no urban-airspace constraints
+- **Open-stack foundation** — built on PX4, MAVSDK, MAVLink — no proprietary protocol lock-in, future-proof against vendor changes
+
+### Technical Stack
+
+- **Flight control**: PX4 / ArduPilot / Pixhawk-compatible (any MAVLink controller)
+- **Companion compute**: Raspberry Pi 5 (POC tier) · NVIDIA Jetson Orin Nano/NX (production tier)
+- **Comms**: RFD900x long-range telemetry · Doodle Labs Helix mesh radio (production)
+- **Sensors**: Sony IMX477 visible · FLIR Lepton 3.5 thermal · Livox Mid-360 LiDAR
+- **Software**: Python · MAVSDK · Flask · WebSocket telemetry · Leaflet mapping · ESRI satellite imagery
+- **Simulation**: PX4 SITL multi-vehicle in WSL2 / Linux containers
+
+### Target Use Cases
+
+- **Rural infrastructure inspection** (powerlines, towers, pipelines) — replacing $1,500/hr helicopter ops
+- **Search & Rescue** — multi-drone area coverage 5× faster than ground teams in first hour
+- **Precision agriculture** — crop scanning, livestock count, irrigation diagnostics
+- **Critical infrastructure perimeter security** (substations, ports, dams)
+- **Wildfire monitoring** — thermal sweep + hot-spot mapping + ground-crew handoff
+- **Survey & mapping** — photogrammetry + LiDAR over construction sites, forest plots, coastlines
+- **Defense / dual-use** — AFWERX SBIR-aligned: contested-environment ops, multi-drone coordination, rapid re-tasking
+
+### Past Performance
+
+> *Pre-revenue, pre-formal-customer stage. To be expanded as customer pilots and SBIR awards accrue.*
+
+- Working software prototype operational in PX4 SITL multi-vehicle simulation (TRL 4)
+- 6-command operator UI with real-time telemetry, group selection, and per-drone POV cameras
+- Maine Technology Institute Business Innovation Funding self-assessment submitted 2026-04 (response: "may be a fit")
+- Funding-strategy roadmap completed: Stage 1 ($115k–475k, 6–9 months) · Stage 2 ($1.85M–4M, 12–18 months)
+
+### Certifications & Compliance
+
+- Small Business Concern (self-certified, < 500 employees)
+- US-citizen owned and operated
+- ITAR awareness — drone-autonomy stack may fall under USML Category VIII; pre-emptive DDTC registration under evaluation
+- TAA-compliant supply chain — no DJI / covered-country components in BOM
+- Section 889 / NDAA-compliant — no Huawei / DJI / Hikvision / Hytera dependencies
+- FAA Part 107 license — in progress (Q3 2026)
+
+### Federal Engagement Status
+
+| Agency / Program | Status |
+|---|---|
+| Maine APEX (EMDC) | Intake meeting scheduled with Procurement Counselor Marissa Henkel |
+| Maine Technology Institute | Business Innovation Funding self-assessment submitted, awaiting response |
+| AFWERX SBIR Phase I | Targeting next BAA window (estimated June–August 2026) |
+| SAM.gov | Registration pending (Q2 2026) |
+| DoD STTR | Under evaluation as alternative track |
+
+### Contact
+
+**Lucas Gragg**, Founder & CEO
+Gragg Robotics, LLC (Maine)
+16 Boutelle Ave, Waterville, ME 04901
+(207) 242-7351 · lukegragg@gmail.com
+
+---
+
+> **Document version:** Draft v1, dated 2026-05-01
+> **Replaces:** N/A (first version)
+> **Update triggers:** SAM.gov registration complete · LLC formation complete · first SBIR award · first paying customer`;
+
+const MD_SBIR = `# AFWERX SBIR Phase I — DRAFT Application
+
+**Gragg Robotics, LLC**
+**Proposal Title:** Operator-First Universal Multi-Drone Control with Bolt-On Autonomy Pod
+**Draft Date:** 2026-05-17
+**Document Owner:** Lucas Gragg
+
+---
+
+## DRAFT NOTICE — READ BEFORE TOUCHING ANYTHING
+
+This is a **working draft for internal review.** It is NOT a submission and must not be uploaded to DSIP / sbir.gov / DoD SBIR Portal in its current state.
+
+Before this becomes a real submission, the following must happen:
+
+1. **Active AFWERX BAA topic number** must be looked up at SBIR.gov for the open window (estimated June–August 2026). The current draft uses a placeholder. The narrative may need to be re-aligned to the specific topic's stated technology need.
+2. **SAM.gov registration** must be complete and the UEI + CAGE codes filled in.
+3. **Maine LLC Certificate of Formation** must be received and EIN issued.
+4. **Marissa Henkel (APEX)** should review both the technical and cost volumes before submission.
+5. **Letter(s) of support** from a defense end-user (AFRL, 711 HPW, AFSOC, or a small commercial customer willing to sign a letter of interest) should be appended.
+6. **Cost volume** must be reconciled against the active solicitation — AFWERX Open Phase I has historically come in either a $75K STTR-style variant or a $150K Direct-to-Phase-II eligible variant. The numbers in Section 11 assume the $150K variant. Verify before locking budget.
+
+Any place a fact is uncertain it is marked \`[TBD: ...]\`. Any place a number is an estimate or assumption it is marked \`[ASSUMPTION: ...]\`. **Do not strip these tags before Lucas verifies each one.**
+
+---
+
+## SECTION 1 — Cover Sheet
+
+| Field | Value |
+|---|---|
+| Topic Number | \`[AFWERX TOPIC # TBD — pull from active SBIR.gov listing at time of submission. Likely an "Open Topic" or a relevant focused topic on Autonomy / Swarm / Contested Operations.]\` |
+| Proposal Title | Operator-First Universal Multi-Drone Control with Bolt-On Autonomy Pod |
+| Firm Name | Gragg Robotics, LLC |
+| Firm Address | 16 Boutelle Ave, Waterville, ME 04901 |
+| State of Incorporation | Maine |
+| DUNS / UEI | \`[TBD — pending SAM.gov registration]\` |
+| CAGE Code | \`[TBD — pending SAM.gov registration]\` |
+| EIN | \`[TBD — pending IRS issuance after LLC Certificate arrives]\` |
+| Federal Tax Status | Maine LLC, taxed as \`[TBD: Lucas to confirm — single-member disregarded entity by default]\` |
+| Principal Investigator | Lucas Gragg, Founder |
+| PI Email | graggrobotics@gmail.com |
+| PI Phone | (207) 242-7351 |
+| Business Email | graggrobotics@gmail.com |
+| Website | https://graggrobotics.com |
+| Phase I Total Cost | \`$150,000\` \`[ASSUMPTION: AFWERX Open Phase I Direct-to-Phase-II-eligible variant. Verify against active solicitation — may be capped at $75K for some variants.]\` |
+| Period of Performance | 3 months from contract award |
+| Number of Employees | 1 (founder); contract hires planned during PoP |
+| Woman-Owned | No |
+| Minority-Owned | No |
+| Veteran-Owned | No |
+| HUBZone | \`[TBD: Kennebec County, ME may qualify as a HUBZone — Lucas to verify at hubzone.sba.gov]\` |
+| First-time SBIR applicant | Yes |
+
+---
+
+## SECTION 2 — Technical Abstract (200 words max)
+
+Gragg Robotics is building the universal multi-drone control layer the Air Force does not yet have: one operator commanding a fleet of any-vendor drones through a real-time strategy interface, plus a bolt-on autonomy pod that retrofits onto existing Pixhawk / PX4 / MAVLink-compatible airframes. We replace the single-pilot-per-drone model that today makes multi-drone operations economically unviable for both commercial inspection and attritable contested-environment missions.
+
+In Phase I we will (a) demonstrate single-operator control of four heterogeneous MAVLink-compatible airframes in PX4 SITL simulation, (b) deliver a v1 sensor + compute + radio pod at the proof-of-concept tier (~$660/drone), (c) quantify operator workload reduction against a single-pilot baseline using NASA-TLX, (d) characterize graceful-degradation behavior under contested communications, and (e) complete Air Force customer discovery with three end-user organizations.
+
+The platform is dual-use by design. Civilian customers in utility inspection, search-and-rescue, agriculture, and infrastructure security underwrite a robust commercial business that supplies the same retrofit autonomy capability to Air Force operators at attritable cost. Phase II will deliver a hardened 12-pod production fleet plus the integrated autonomy stack against an Air Force end-user transition partner identified during Phase I.
+
+\`[Word count: ~210 — trim 10 before submission. Drop "robust" and one descriptive clause.]\`
+
+---
+
+## SECTION 3 — Identification and Significance of the Problem / Opportunity
+
+### The problem the Air Force is trying to solve
+
+Recent Air Force doctrine has been explicit that future contested-environment air operations require **large numbers of low-cost, attritable, autonomous platforms** operating in coordinated swarms. Programs from Replicator to AFWERX Open Topic series have repeatedly funded swarm autonomy, distributed manned-unmanned teaming, and attritable platform initiatives. The hardware is increasingly available; the operator interface and the vendor-agnostic control layer are not.
+
+Today the multi-drone operations stack looks like this:
+
+- Each drone vendor (Skydio, BRINC, Anduril, Teal, Parrot, Autel) ships its own ground control station.
+- The ground stations do not talk to each other. An operator running drones from three vendors needs three laptops, three operators (often), and zero data fusion between platforms.
+- "Swarm" capability, where it exists at all, is locked to a single vendor's airframe family. The Air Force loses the ability to mix-and-match the best available platform for a given mission.
+- For commercial operators (utilities, public safety, surveying), the labor cost of one pilot per airframe destroys the ROI of multi-drone work. They under-invest, the market stays small, and the unit economics never improve.
+
+The Air Force inherits this fragmented, single-vendor, labor-heavy world by default. AFWERX Phase I funding can fix it.
+
+### The opportunity
+
+Three things have aligned in 2025–2026 that make a universal multi-drone control layer practical today:
+
+1. **MAVLink has become the de facto open protocol for small autonomous airframes.** Pixhawk, PX4, ArduPilot, and an increasing list of commercial vendors expose MAVLink. A control layer built on MAVSDK and MAVLink reaches a substantial fraction of the relevant fleet on day one.
+2. **Edge compute is cheap and field-deployable.** A Raspberry Pi 5 (POC tier) or Jetson Orin (production tier) is small enough, light enough, and power-efficient enough to ride on the drone as an autonomy companion, no airframe modification required.
+3. **Real-time-strategy interaction patterns are mature.** Operators do not need a flight-control panel; they need a map, a small set of high-level command verbs, and good defaults. The RTS genre has spent thirty years refining the one-operator-many-units interaction model — borrowing it directly is the right move.
+
+### Why Gragg Robotics now
+
+We are a Maine-based, founder-led startup with a working software prototype today: a PX4-SITL-backed 4-drone simulator running our RTS-style operator UI over Flask + MAVSDK + SocketIO. We are building the hardware pod on top of off-the-shelf components for the POC tier (~$660/drone) and a production tier (~$4,200/drone with Jetson Orin, FLIR thermal, Livox LiDAR, mesh radio). The civilian commercial market gives us a real revenue path that supplements DoD funding — exactly the dual-use profile AFWERX rewards.
+
+### Significance to the Air Force and DoD
+
+A vendor-agnostic, retrofit autonomy pod plus operator-first multi-drone control software gives the Air Force four immediate capabilities:
+
+- **Recapitalize existing fleets** — the Air Force, AFSOC, and Air National Guard already field thousands of MAVLink-compatible airframes. The pod adds swarm capability without buying new aircraft.
+- **One-operator-many-airframes economics** — at ~10× labor leverage, the operator workforce can sustain operations at fleet scale that single-pilot-per-airframe models cannot.
+- **Attritable cost basis** — at $660/pod POC tier, the autonomy hardware is genuinely attritable. The aircraft itself can be the cheapest available airframe and still inherit modern autonomy.
+- **Dual-use commercial subsidy** — the civilian customer base (utility, SAR, agriculture, security) underwrites continuous platform improvement at no DoD cost. Defense gets the benefit of commercial-scale iteration on the same stack.
+
+\`[ASSUMPTION: the "~10× labor leverage" framing is the natural extrapolation from one-operator-four-to-twelve-drones. Phase I will substantiate this via NASA-TLX measurement; until then it is a directional claim, not a measured one.]\`
+
+---
+
+## SECTION 4 — Phase I Technical Objectives
+
+Phase I has six concrete, measurable objectives. Each objective has a defined success criterion that will be reported in the Phase I final deliverable.
+
+### Objective 1 — Single-operator multi-airframe control in PX4 SITL
+
+Demonstrate one operator commanding **four or more heterogeneous MAVLink-compatible airframes** simultaneously in PX4 SITL. Heterogeneity means at least two distinct airframe profiles (e.g., quadcopter + fixed-wing) using the same UI and command set.
+
+**Success criterion:** complete a scripted multi-phase mission (launch, SWEEP, TARGET, FOLLOW, RTH) with all four airframes responding to operator inputs within 500 ms median command-to-acknowledgement latency, and full mission completion with no operator intervention beyond the six UI commands.
+
+### Objective 2 — Command primitive coverage analysis
+
+Through customer discovery interviews with **three Air Force end-user organizations** (target: representatives from AFRL, 711 HPW, AFSOC, or DIU's autonomy portfolio — \`[ASSUMPTION: Marissa Henkel and the AFWERX Engage network will help broker these intros]\`), validate that the existing six-command primitive set (TARGET, FOLLOW, SWEEP, WAYPOINT, GO HOME, ENGAGE — currently rendered in the UI as the eight verbs GO_TO, ENGAGE_EN_ROUTE, ENGAGE_MOD, SWEEP_1KM, INSPECT, SENTRY, OBSERVE, RTH) covers ≥ 90 % of operator-relevant use-case scenarios.
+
+**Success criterion:** a use-case matrix scored against interview transcripts, with ≥ 90 % of named operator scenarios decomposable into compositions of the existing primitives. Any unaddressed scenarios drive a Phase II command-set revision proposal.
+
+### Objective 3 — Bolt-on autonomy pod v1
+
+Design, fabricate, and bench-characterize a v1 POC-tier sensor + compute + radio pod:
+
+- Companion compute: Raspberry Pi 5
+- Visible camera: Sony IMX477 module
+- Long-range mesh radio: RFD900x
+- Power from drone battery via regulated tap
+- MAVLink connection to flight controller over UART/USB
+- IP54 weatherproof, sub-250 g, ~100 × 80 × 50 mm enclosure (per \`funding/hiring/mechanical_engineer_scope_2026-05-14.md\`)
+
+Integration target airframe: a Holybro X500 or equivalent commercial PX4 reference airframe.
+
+**Success criterion:** one fully assembled pod, mounted on the target airframe, demonstrating MAVLink telemetry round-trip and visible-camera streaming over the RFD900x link at ≥ 500 m line-of-sight range under bench/field test conditions.
+
+### Objective 4 — Operator workload measurement (NASA-TLX)
+
+Run a controlled simulator study using the PX4 SITL stack: same mission profile executed under (a) the Gragg Robotics single-operator-multi-drone UI and (b) a single-pilot-per-drone baseline using a representative existing GCS (QGroundControl or Auterion Suite, \`[TBD: pick which]\`). NASA-TLX administered after each trial.
+
+**Success criterion:** measured operator workload reduction reported as a quantitative delta across the six NASA-TLX subscales. The hypothesis is meaningful reduction in Mental Demand, Effort, and Frustration subscales when comparing single-operator-four-drones to four-pilots-four-drones. Whatever the result, it is reported honestly — a null or negative result is still valid Phase I deliverable content and informs Phase II design.
+
+### Objective 5 — Graceful degradation under contested communications
+
+Characterize the autonomy stack's behavior under simulated link degradation: link loss, intermittent packet loss, latency spikes, and partial mesh failure. The pod's default behavior on link loss must be deterministic and survivable (configurable: hold position, return to home, continue current command).
+
+**Success criterion:** a documented characterization report covering at least three degraded-comms regimes, with per-regime default behaviors that have been tested in SITL and demonstrated to be safe (no loss of aircraft, no operator-perceived unpredictability).
+
+### Objective 6 — Customer discovery + transition partner identification
+
+Complete structured discovery interviews with at least three Air Force-relevant end-user organizations. Identify at least one qualified transition partner — defined as an organization that has explicitly stated interest in evaluating the Phase II prototype.
+
+**Success criterion:** signed letter of interest from at least one Air Force transition partner organization, included in the Phase I final report and ready to support a Phase II / Direct-to-Phase-II proposal.
+
+---
+
+## SECTION 5 — Phase I Work Plan
+
+Three-month period of performance. Monthly milestones; weekly status to the contracting officer.
+
+### Month 1 — Discovery + framework setup
+
+| Week | Activity |
+|---|---|
+| 1 | Kickoff with contracting officer. AFWERX customer-discovery interview prep with Marissa Henkel (APEX). PX4 SITL multi-airframe framework setup — extend the existing single-airframe-type simulator to support heterogeneous airframes. |
+| 2 | First three Air Force customer-discovery interviews scheduled and conducted. Mechanical engineer contractor signed (per \`funding/hiring/mechanical_engineer_scope_2026-05-14.md\`). Hardware procurement: 4× Holybro X500 airframes, 4× Raspberry Pi 5 + RFD900x pairs, sensors. |
+| 3 | First multi-airframe SITL mission scripted and running. Pod mechanical CAD first draft from contractor. |
+| 4 | Use-case matrix populated from first three interview transcripts. Pod CAD review and revision. PCB layout begins (subcontractor: MacroFab or Sierra Circuits, quotes already in progress). |
+
+### Month 2 — Build + integration
+
+| Week | Activity |
+|---|---|
+| 5 | First 3D-printed enclosure iteration. PCB v1 ordered. Two additional customer-discovery interviews (target: 5 total by end of Month 2). |
+| 6 | Pod assembly bench test. MAVLink integration with Pixhawk flight controller on the X500 reference airframe. SITL graceful-degradation regimes scripted. |
+| 7 | First integrated outdoor test at controlled site (rural Maine, \`[ASSUMPTION: 40 Benson Rd, Manchester ME — Lucas's existing flying area]\`). Pod mounted on real airframe; basic telemetry + camera-streaming validation. |
+| 8 | Iteration based on outdoor test findings. SITL operator-study protocol finalized + IRB-equivalent review of NASA-TLX procedure. \`[ASSUMPTION: a single-PI workload study at this scale does not require formal IRB but should follow informed-consent best practice. Confirm with AFRL Human Effectiveness contact if available.]\` |
+
+### Month 3 — Measure + write
+
+| Week | Activity |
+|---|---|
+| 9 | NASA-TLX simulator study conducted with at least 6 participants (3 single-operator-multi-drone trials + 3 single-pilot-per-drone trials). \`[ASSUMPTION: 6 participants drawn from local UMaine ECE / WPI robotics network — sample size adequate for directional comparison but not for formal statistical claims. Phase II expands the panel.]\` |
+| 10 | Data analysis. Graceful-degradation final characterization. Customer-discovery report assembly. |
+| 11 | Final report drafting. Letter(s) of interest secured from transition partner(s). Phase II / Direct-to-Phase-II proposal prep begins. |
+| 12 | Final report delivered to contracting officer. Phase II submission package complete and ready for the next AFWERX window. |
+
+### Deliverables
+
+1. Phase I Final Report covering all six objectives (PDF).
+2. Source code release of the multi-drone control UI (private GitHub repo with DoD-readable access, MIT-licensed for the open components, proprietary on the autonomy pod firmware).
+3. Pod mechanical CAD package + BOM + assembly instructions.
+4. PCB schematic + Gerber files for the pod baseboard.
+5. NASA-TLX raw data + analysis summary.
+6. Customer discovery report with interview transcripts (suitably anonymized) and use-case matrix.
+7. Letter of interest from at least one Air Force transition partner.
+8. Phase II proposal package, ready for next AFWERX window.
+
+---
+
+## SECTION 6 — Related Work
+
+### Lucas's prior background
+
+Lucas Gragg is a self-taught software engineer with a multi-year track record building autonomous systems for personal projects, including trading bot automation, hardware integration, and end-to-end software products. He is the sole author of the existing PX4-SITL + MAVSDK + Flask multi-drone control stack at the core of this proposal.
+
+**Honest disclosure:** Lucas is a first-time defense applicant. He does not have a prior SBIR, a prior DoD contract, or a security clearance. He does have demonstrated ability to ship working software, a working prototype today, and grant funding momentum (MTI Business Innovation Funding application 2428739 in flight, expected mid-2026). The "first-time" status is not a disqualifier for AFWERX Open Phase I — the Open program explicitly exists to bring new entrants into the DoD ecosystem.
+
+### Foundational open-source work this builds on
+
+- **MAVLink** (mavlink.io) — the open communication protocol that enables vendor-agnosticism.
+- **PX4 Autopilot** (px4.io) — the open flight-control firmware running on a substantial fraction of Pixhawk-compatible airframes worldwide.
+- **MAVSDK** (mavsdk.mavlink.io) — the Python/C++ SDK providing high-level mission control over MAVLink. Our software stack uses MAVSDK as the abstraction layer between our control logic and the airframe.
+- **ArduPilot** — alternative MAVLink-compatible firmware; targeted for compatibility in Phase II.
+
+Gragg Robotics is a contributor and consumer of these projects, not a competitor. Our value-add is the operator-facing control layer plus the bolt-on hardware pod — the open stack remains the foundation.
+
+### Other multi-drone GCS efforts
+
+We are aware of and respect adjacent efforts in the market:
+
+- **Skydio Defense** — vertically integrated; their swarm capability is locked to Skydio airframes. Strong product, narrow fleet.
+- **Anduril Lattice** — sensor and command-and-control fusion at a much higher tier of program. Operates at the level of a theater C2 platform; not focused on the operator-level multi-drone-fleet problem we are solving.
+- **Shield AI Hivemind** — V-BAT-focused autonomous fleet operations. Strong autonomy, again vertically integrated to a specific airframe.
+- **Auterion Suite** — modular GCS with growing multi-drone support, but anchored to a specific autopilot family and not focused on the RTS-style operator workflow.
+
+**How Gragg Robotics is different:** we are the vendor-agnostic, retrofit-onto-existing-fleet, operator-first option. We do not compete to be the next vertically integrated drone company. We compete to be the **horizontal autonomy layer** that lets the Air Force keep using the airframes it already has — including those from the four vendors above — and run them all from one operator console. The civilian commercial market accelerates that horizontal-layer play in a way the defense-only vendors structurally cannot match.
+
+---
+
+## SECTION 7 — Commercialization Plan
+
+### Civilian commercial revenue is the foundation
+
+Gragg Robotics is not a "defense-only" company that hopes commercial markets show up later. The dual-use positioning is the strategy from day one. The civilian customer base both pays the bills and validates the platform at a scale and iteration cadence that defense-only competitors cannot match.
+
+### Year 1 — civilian-first sales (Maine + adjacent New England utility / public safety)
+
+**Target customers:**
+
+- **Central Maine Power (CMP)** and **Versant Power** — Maine's two largest electric utilities. Powerline and substation inspection currently runs at $1,500/hour for helicopter inspection or single-pilot drone work. A 4-drone fleet operated by one inspector reduces unit cost and accelerates rural Maine transmission-line coverage. Initial conversations targeted for Q3 2026.
+- **Maine Search & Rescue / Maine Game Wardens / county sheriffs (Kennebec County initial)** — wide-area search with autonomous detection and ground-team handoff. Cuts hours off SAR timelines, especially the first "golden hour." Letter-of-interest target Q3–Q4 2026.
+- **Maine Department of Agriculture, Conservation and Forestry** — wildfire monitoring and forestry survey via thermal-equipped fleet, post-BIF-funded production tier.
+
+**Pricing model:**
+
+- Software: per-operator-seat SaaS license, \`[ASSUMPTION: $5,000/seat/year — to be benchmarked against ESRI / AutoCAD / Skydio Cloud comparable tiers in Phase I commercial discovery]\`
+- Hardware pod: per-unit sale at the POC tier (~$660 BOM, retail TBD with margin), production tier (~$4,200 BOM, retail TBD)
+- Optional professional services: pilot mission planning, custom mission scripts, training — billed hourly
+
+### Year 2 — expansion into adjacent civilian markets + AFWERX Phase II execution
+
+**Civilian:**
+
+- Out-of-state utility (Eversource, National Grid)
+- Precision agriculture in the Northeast corn / dairy belt
+- Critical infrastructure security (substations, water treatment, ports)
+
+**Defense:**
+
+- AFWERX Phase II Direct (~$750K–$1.5M, 12–24 month performance)
+- Phase II prototype delivery against the transition partner identified in Phase I
+- Air National Guard pilot if a state guard unit is identified during Phase I customer discovery
+
+### Year 3 — strategic options
+
+By end of year 3 the company is positioned for one of two outcomes:
+
+1. **Acquisition by a defense prime or autonomy-portfolio acquirer** (candidates: Anduril, Shield AI, L3Harris, Teledyne FLIR). The dual-use commercial customer base meaningfully increases acquisition value over a defense-only vendor.
+2. **Continued operating business with Series A or DoD Phase III sole-source contracting.** Maine Venture Fund relationship developed in Stage 2 funds the Series A path if pursued.
+
+### Conservative 3-year revenue projection
+
+| Year | Civilian rev | Defense rev | Total | Notes |
+|---|---|---|---|---|
+| 2026 | $25K (MTI BIF) | $0 | $25K | BIF grant treated as revenue equivalent for build-out |
+| 2027 | $50K–$150K | $150K (AFWERX Phase I) | $200K–$300K | First 1–2 civilian pilots; Phase I funded |
+| 2028 | $400K–$800K | $750K–$1.5M (AFWERX Phase II) | $1.15M–$2.3M | 5–10 paying civilian customers; Phase II executing |
+| 2029 (yr 3 from this proposal) | $1.0M–$1.5M | $1.0M–$2.0M | $2.0M–$3.5M | 20–30 utility / municipal customers; Phase III / Series A decision point |
+
+\`[ASSUMPTION: these are conservative, founder-built projections. Defense reviewers will scrutinize them — they are positioned as conservative (we hit the bottom of these ranges, things are going well) rather than aspirational. Lucas should review each number against his own gut before submission.]\`
+
+### Why this commercialization plan beats a defense-only plan
+
+AFWERX scoring rewards commercialization potential. A defense-only plan that depends entirely on a Phase II → Phase III → program-of-record trajectory has all its risk concentrated in the Air Force budget cycle. Our dual-use plan has two independent revenue legs: every dollar of civilian revenue reduces the company's dependence on DoD funding velocity. This is precisely the profile AFWERX is looking for.
+
+---
+
+## SECTION 8 — Key Personnel
+
+### Lucas Gragg — Founder, Principal Investigator
+
+Lucas is the sole founder of Gragg Robotics, headquartered in Waterville, Maine. He is the technical lead, sole author of the existing multi-drone control software prototype, and will serve as Principal Investigator on this Phase I.
+
+**Skills directly relevant to this proposal:**
+
+- Python software engineering — primary language of the existing control stack (Flask + MAVSDK + SocketIO + asyncio)
+- Drone autonomy — hands-on with PX4, MAVLink, MAVSDK, PX4 SITL simulation
+- Real-time-strategy UI design — the operator-first six-command primitive set is his original work
+- MAVLink integration — direct integration experience between the Python control layer and Pixhawk-compatible airframes
+- Autonomous-systems software — multi-year track record building autonomous decision systems for adjacent domains (algorithmic trading bots, automated content production), demonstrating the ability to ship and operate complex autonomous software in production
+
+**Honest disclosure:** Lucas has no prior defense industry experience. He has no security clearance. He does not have an aerospace or mechanical engineering degree. He has working autonomous-systems software shipping in production, a working drone-swarm prototype today, and a documented learning velocity. The Air Force has historically funded first-time founders through AFWERX Open precisely because the program is structured to bring new talent in.
+
+**Time commitment to Phase I:** 100 % (full-time). Founder is the only full-time employee.
+
+### To-Be-Hired — Contract Mechanical Engineer
+
+Per the scope of work at \`funding/hiring/mechanical_engineer_scope_2026-05-14.md\`, a 1099 contract mechanical engineer will lead the pod enclosure and mounting design. The role is scoped at 60–100 hours over 8–10 weeks, billed hourly, with deliverables specified up front. Sourcing channels include the ArduPilot dev forum, UMaine ECE, WPI Robotics Engineering, and direct LinkedIn outreach. Target candidate profile: mid-level mechanical engineer with prior drone-payload enclosure experience.
+
+\`[TBD: candidate will be named in the final submission — Phase I award is gated on getting at least 3 candidate intros lined up by submission week. Marissa at APEX can advise on whether a named subcontractor is preferred or acceptable as TBD at the proposal stage.]\`
+
+### Advisory / supporting (uncompensated for Phase I)
+
+- **Marissa Henkel** — Procurement Counselor, Maine APEX Accelerator (Kennebec County). Supporting SAM.gov registration, customer discovery introductions, and proposal review. Not a Phase I personnel cost.
+- **Abby Osei** — Investment Officer, Maine Technology Institute. Supporting the MTI BIF grant in parallel. Not a Phase I personnel cost.
+
+---
+
+## SECTION 9 — Facilities and Equipment
+
+### Headquarters
+
+Gragg Robotics is headquartered at 16 Boutelle Ave, Waterville, ME 04901 (Kennebec County). The facility includes the founder's full-time development workstation, dedicated multi-monitor setup for SITL operator-study runs, and adequate space for pod bench assembly and small-scale hardware test.
+
+### Outdoor flying area
+
+Phase I outdoor flight testing will be conducted at \`[ASSUMPTION: 40 Benson Rd, Manchester ME — already configured as the HOME location in the existing software stack per config.py. Lucas to confirm site access for outdoor flight test during Phase I.]\`. The Maine rural environment provides excellent low-airspace-conflict conditions for SITL-to-real-flight transition testing.
+
+### Computing resources currently in place
+
+- Primary development workstation (Windows 11, sufficient for PX4 SITL multi-instance simulation up to 8 airframes simultaneously)
+- Existing development environment with Python 3.12, PX4 SITL, MAVSDK Python bindings, Flask, SocketIO, and the in-development control stack
+
+### Equipment to be procured under Phase I
+
+- 4× Holybro X500 reference airframes (or equivalent commercial PX4 airframes) — for pod integration and outdoor flight test
+- 4× Raspberry Pi 5 companion compute modules
+- 4× RFD900x mesh radios
+- 4× Sony IMX477 camera modules
+- 1× Jetson Orin Nano dev kit (for production-tier preview / Phase II planning)
+- Additional dev workstation (laptop, per \`funding/hiring/business_laptop_recommendation_2026-05-16.md\`) for mobile work and customer-discovery travel
+- Bench test equipment: oscilloscope \`[ASSUMPTION: low-cost USB scope adequate]\`, power supplies, soldering station, multimeter
+
+### Subcontractor facilities
+
+- PCB fabrication and assembly: MacroFab (Houston, TX) or Sierra Circuits (Sunnyvale, CA), quotes in progress. Both are U.S.-based ITAR-friendly contract manufacturers.
+- 3D-printing for pod enclosure prototypes: contractor's own facility or a Maine-based service bureau.
+
+---
+
+## SECTION 10 — Subcontractors and Consultants
+
+| Role | Vendor | Scope | Estimated Phase I cost |
+|---|---|---|---|
+| Mechanical engineer (1099) | TBD — sourced via ArduPilot dev forum, UMaine ECE, WPI, direct outreach | Pod enclosure + mounting bracket CAD, BOM, assembly docs (per \`funding/hiring/mechanical_engineer_scope_2026-05-14.md\`) | ~$8,000 |
+| PCB fab + assembly | MacroFab or Sierra Circuits | Pod baseboard PCB design review, fab, partial assembly for 4 units | ~$5,000 |
+| Optional: outdoor test pilot (1099) | TBD — Maine licensed Part 107 pilot, hired ad-hoc for outdoor flight test if Lucas does not yet hold Part 107 by Month 2 | 1–2 days of pilot-of-record service during outdoor testing | ~$2,000 |
+| **Total subcontractor** | | | **~$15,000** |
+
+**SBIR work-share compliance:** The total subcontractor cost of ~$15,000 is approximately 10 % of the proposed $150,000 Phase I total. The prime (Gragg Robotics) retains roughly 90 % of the work, comfortably above the 67 % minimum required by SBIR rules for Phase I. \`[ASSUMPTION: verify exact Phase I work-share rule against the active solicitation — historical SBIR Phase I rule is ≥ 67 % for prime; AFWERX may modify this.]\`
+
+---
+
+## SECTION 11 — Cost Volume Summary
+
+Total proposed: **$150,000** (3-month period of performance)
+
+| Category | Description | Amount |
+|---|---|---|
+| Direct labor — PI (Lucas Gragg) | 3 months full-time at \`[ASSUMPTION: $200K-equivalent annual rate, fully loaded]\`, prorated | $50,000 |
+| Direct labor — contract mechanical engineer | ~80 hours at ~$75/hr median rate | $6,000 |
+| Direct labor — outdoor test pilot (contingency) | 1–2 days, billable to Phase I if Lucas not Part 107 by Month 2 | $2,000 |
+| **Subtotal direct labor** | | **$58,000** |
+| Subcontract — PCB fab + assembly | MacroFab or Sierra Circuits, 4 pod baseboards | $5,000 |
+| Subcontract — mechanical engineering | (counted under direct labor above) | (incl.) |
+| **Subtotal subcontracts** | | **$5,000** |
+| Materials — drone airframes (4× Holybro X500 or equivalent) | ~$2,000 each | $8,000 |
+| Materials — compute, radio, camera (4 sets) | RPi 5, RFD900x, IMX477, regulators, cables — ~$660/set | $2,640 |
+| Materials — 1× Jetson Orin Nano dev kit (Phase II preview) | | $500 |
+| Materials — enclosure 3D-printing + PCB components + misc hardware | | $4,000 |
+| Materials — bench test equipment | scope, soldering, power supplies | $2,000 |
+| Materials — dev laptop (per business_laptop_recommendation) | | $1,000 |
+| **Subtotal materials** | | **$18,140** |
+| Travel — customer-discovery trips (3 trips, in-region + 1 to Wright-Patt or AFWERX Engage venue) | airfare, lodging, per diem | $7,000 |
+| Travel — outdoor flight test site fuel + small expenses | | $1,000 |
+| **Subtotal travel** | | **$8,000** |
+| Other direct costs — cloud compute (CI for SITL, build infrastructure) | | $1,500 |
+| Other direct costs — software licenses (CAD seat if not contractor-provided, dev tools) | | $1,500 |
+| Other direct costs — IRB / human-subjects-equivalent review of NASA-TLX protocol | \`[ASSUMPTION: low cost for small in-house study; budget includes external review if AFRL contact requests it]\` | $1,000 |
+| Other direct costs — SAM.gov / business / accounting fees prorated to Phase I | | $1,000 |
+| **Subtotal ODC** | | **$5,000** |
+| Indirect costs — small-business overhead + G&A | \`[ASSUMPTION: Gragg Robotics will operate under a simple small-business indirect-rate structure of ~28 % of direct labor. This is at the low end of typical SBIR firms. Should be confirmed with Marissa Henkel and possibly a small-business accountant before submission.]\` | $22,000 |
+| **Subtotal indirect** | | **$22,000** |
+| Fee at 7 % of total direct + indirect | per FAR small-business norm | ~$8,000 |
+| **Subtotal fee** | | **$8,000** |
+| Reserve / unallocated | rounding + small-buffer | ~$25,860 \`[FLAG: this is too large — once Lucas tightens the labor rate and indirect-rate assumptions, redistribute this back into specific line items]\` |
+| **TOTAL** | | **$150,000** |
+
+### Cost-volume open issues for Lucas to resolve before submission
+
+1. **PI labor rate** — the $200K-equivalent fully loaded rate is a placeholder. Lucas should set this based on (a) what he actually plans to pay himself, (b) what's customary for a sole-founder PI on a federal small-business grant, and (c) Marissa's guidance on what AFWERX reviewers expect. Anything between $100K and $250K fully loaded is defensible; the labor cost should not be the dominant line item if it stretches the budget.
+2. **Indirect rate** — the 28 % indirect rate is a small-business estimate. A real indirect rate should be computed against actual G&A, rent, utilities, software subscriptions, accounting fees, insurance, etc. Marissa or an SBIR-experienced accountant can help compute a defensible rate.
+3. **Fee** — 7 % is the standard SBIR/FAR small-business profit fee. Confirm the active solicitation does not cap or modify this.
+4. **Topic variant total** — AFWERX Open Phase I has historically come in either a $75K STTR-style variant or a $150K Direct-to-Phase-II eligible variant. **Lucas must verify which variant the active solicitation supports before locking the cost volume.** If $75K, the entire budget gets cut in half — typically by removing the optional outdoor test pilot, deferring the Jetson Orin dev kit to Phase II, and shrinking the customer-discovery travel scope.
+5. **Reserve / unallocated** — the ~$26K reserve line is too large. Redistribute it back into specific line items (likely: more labor for the PI, more for materials, slightly more for travel) once labor and indirect assumptions are tightened.
+
+---
+
+## SECTION 12 — Company Commercialization Report (CCR)
+
+Gragg Robotics is a brand-new Maine LLC, founded in 2026. As of the proposal date:
+
+- **Prior SBIR / STTR awards:** None. This is our first SBIR application.
+- **Prior federal contracts:** None.
+- **Prior commercial revenue:** None to date. MTI Business Innovation Funding application 2428739 is in flight, anticipated $25,000 award targeted Q2–Q3 2026.
+- **Outside investment:** None to date. Bootstrapped to date by the founder.
+- **Patents:** None pending or issued.
+- **Publications:** None to date relevant to this proposal.
+
+**Why this is not a disqualifier:** AFWERX Open Phase I exists explicitly to bring new entrants into the DoD innovation ecosystem. First-time SBIR firms have historically been awarded under the Open program. Our position is honest: brand-new company, real working software prototype, grant momentum, dual-use market validated through early civilian-customer conversations, founder fully committed.
+
+---
+
+## SECTION 13 — Allocation of Rights (Bayh-Dole / SBIR Data Rights)
+
+### SBIR Data Rights — Assertion
+
+Per SBIR Policy Directive 8(b), Gragg Robotics asserts a **4-year SBIR Data Rights period** on technical data and computer software developed under this Phase I contract. During that period, the Government's rights are limited per the standard SBIR data rights clause.
+
+### Pre-existing intellectual property
+
+- The existing multi-drone control software prototype (Flask + MAVSDK + SocketIO + asyncio core, six-command RTS UI primitive set) is **pre-existing IP** of Lucas Gragg, contributed in-kind to the company. It pre-dates this contract and is not a Phase I deliverable per se — it is the foundation on which Phase I work builds.
+- Pre-existing IP licensed to Gragg Robotics on royalty-free, perpetual basis by the founder.
+- Open-source dependencies (PX4, MAVLink, MAVSDK, Flask, SocketIO) are used and integrated under their respective open-source licenses. No GPL contamination of Gragg Robotics proprietary work — all dependencies are MIT, BSD, Apache-2.0, or similarly permissive. \`[ASSUMPTION: verify license compatibility per dependency before submission. PX4 is BSD-3-Clause; MAVLink LGPL-3.0; MAVSDK BSD-3-Clause; Flask BSD; SocketIO MIT — all confirmed permissive.]\`
+
+### Commercial software assertion
+
+The operator-facing software (the GCS layer including the six-command UI and the underlying control logic) is asserted as **commercial computer software** developed at private expense and offered to the Government under restricted rights per FAR / DFARS commercial-item provisions. The autonomy pod firmware developed under Phase I will be marked with SBIR data rights as appropriate.
+
+### Bayh-Dole
+
+Gragg Robotics will exercise standard Bayh-Dole rights to elect title to any subject inventions developed under this Phase I, and will report inventions per 37 CFR 401.
+
+---
+
+## SECTION 14 — Required Disclosures
+
+### Foreign ties / foreign-controlled relationships
+
+Gragg Robotics has **no foreign ties or foreign-controlled relationships.** The company is a Maine LLC, 100 % owned by Lucas Gragg, a U.S. citizen residing in Waterville, Maine.
+
+### U.S. Person status
+
+- **Lucas Gragg (Founder, PI):** U.S. citizen.
+- **All planned contractors / subcontractors:** to be U.S. citizens or U.S. Persons; international subcontracting is not contemplated for Phase I.
+- **All planned facilities:** in the continental United States.
+
+### Conflicts of interest
+
+The founder discloses parallel activity in algorithmic trading and adjacent autonomous-software domains (see CLAUDE.md / personal background). None of these create a conflict with the Phase I work or the Air Force mission set being addressed. No prior federal grants in progress.
+
+### SAM.gov registration
+
+Registration is in progress. Target completion before this proposal is submitted. UEI and CAGE codes will be in place at submission.
+
+### Federal debarment / exclusion
+
+Gragg Robotics is not debarred, suspended, proposed for debarment, or otherwise excluded from federal contracting. No pending legal action against the company or the founder.
+
+### Other federal grants in flight
+
+- **MTI Business Innovation Funding application 2428739** (state-level, Maine — not a federal program). No overlap or duplication with this Phase I request.
+
+---
+
+## SECTION 15 — Submission Checklist & Open Items
+
+Use this checklist to track everything still to be resolved before this draft becomes a live submission.
+
+### Hard blockers (cannot submit without)
+
+- [ ] **Active AFWERX BAA Topic # confirmed** at sbir.gov. Next window estimated June–August 2026. Re-align the technical narrative if the topic specifies a particular technology need.
+- [ ] **SAM.gov registration complete** → UEI and CAGE codes in hand. In-person session with Marissa Henkel at KVCOG Fairfield is queued.
+- [ ] **Maine LLC Certificate of Formation received** and EIN issued by IRS.
+- [ ] **Business bank account opened** at Bangor Savings, post-EIN.
+- [ ] **Cost volume reconciled** against the active solicitation's actual ceiling ($75K vs $150K variant).
+- [ ] **PI labor rate, indirect rate, fee structure** all set against real numbers (not the placeholders in Section 11).
+
+### Strongly recommended (don't submit without)
+
+- [ ] **Marissa Henkel review** of both the technical and cost volumes.
+- [ ] **Letter of interest** from at least one Air Force end-user (AFRL, 711 HPW, AFSOC, ANG unit). Marissa's network and the APEX program can help broker the introduction.
+- [ ] **Customer discovery interviews started** — at least one Air Force end-user conversation before submission so the proposal can reference it concretely rather than promissorily.
+- [ ] **At least 3 candidate mechanical-engineer contractors** identified and reachable, so the "TBD subcontractor" risk is minimized in reviewer eyes.
+- [ ] **Decide on Direct-to-Phase-II eligibility** — if Lucas wants the option of jumping straight to Phase II, the Phase I scope and budget have to be structured to qualify.
+
+### Nice-to-have
+
+- [ ] **Letter of support from MTI** (Abby Osei) referencing the BIF investment and the Maine ecosystem support.
+- [ ] **Letter of support from a Maine civilian customer prospect** (CMP, Versant, Maine SAR, county sheriff). Strengthens the commercialization-plan section.
+- [ ] **HUBZone qualification check** for Kennebec County (potential 10 % evaluation preference).
+- [ ] **First public press hit** (Mainebiz, BDN) about the company. Useful as a credibility marker even though not directly referenced.
+
+---
+
+## Review Notes for Lucas
+
+A few sections where I made bold or assumption-laden claims that you should review and either confirm, correct, or soften:
+
+1. **Section 11 (Cost Volume) — labor rate, indirect rate, fee, and reserve line.** I plugged in placeholders. The labor rate ($200K fully loaded annually) and indirect rate (28 %) are both guesses. Marissa Henkel at APEX or a small-business accountant should help you set these against real numbers before this becomes a real submission. The reserve / unallocated line is too large — that gets redistributed once you fix the upstream numbers.
+
+2. **Section 2 (Technical Abstract) — slight word-count overage.** I came in around 210 words; the limit is 200. I flagged where to trim (drop "robust" plus one descriptor) before submission. Also worth re-reading once on its own — abstracts are heavily weighted by reviewers and you want every word working.
+
+3. **Section 4 (Objective 4 — NASA-TLX study) — sample size and the IRB question.** I budgeted for 6 participants drawn from the local UMaine / WPI network. That's adequate for a directional comparison but not for any formal statistical claim. I also flagged the IRB-equivalent question — a 6-person workload study at a small business almost certainly does not require formal IRB, but you should confirm that you're following informed-consent best practice. If you want to claim anything stronger from the study, the participant count needs to grow and the methodology gets more formal.
+
+4. **Section 7 (Commercialization Plan) — the 3-year revenue projection.** I positioned these as conservative founder projections, but conservative-vs-aspirational is in the eye of the reviewer. Read the numbers against your own gut. The Y3 floor of $2M total revenue assumes 20–30 utility / municipal customers, which is achievable but not trivial — back it up by being specific about WHICH customers you plan to land in your first year of pilots (you have CMP, Versant, Maine SAR, county sheriffs identified — name them when you can).
+
+5. **Section 8 (Key Personnel) — first-time-defense-applicant honest disclosure.** I leaned into the honest framing rather than hiding it. Defense reviewers can smell BS faster than commercial reviewers, and the AFWERX Open program is explicitly built to bring first-time founders in. But you should read the "honest disclosure" paragraphs and confirm you're comfortable with the framing. If you'd rather emphasize what you HAVE built (the trading bots, the autonomous-systems work in adjacent domains) more loudly, that's a fair edit — but don't fabricate credentials you don't have.
+
+6. **Section 1 (Cover Sheet) — single-member LLC tax status.** Maine LLCs default to single-member-disregarded-entity for federal tax. If you've elected S-Corp status (or plan to), the cover sheet needs to reflect that. Worth a 5-minute confirmation with whoever's helping you with the Bangor Savings account opening.
+
+The draft is at: **\`C:/Users/PC/Desktop/Projects/drone-swarm/funding/sbir/AFWERX_SBIR_PHASE_I_DRAFT_2026-05-17.md\`**
+
+---
+
+*End of draft.*`;
+
+// ===== RENDER MARKDOWN INTO TABS =====
+document.getElementById('md-script').innerHTML = parseMd(MD_SCRIPT);
+document.getElementById('md-terms').innerHTML = parseMd(MD_TERMS);
+document.getElementById('md-capability').innerHTML = parseMd(MD_CAPABILITY);
+document.getElementById('md-sbir').innerHTML = parseMd(MD_SBIR);
+
+// ===== TELEPROMPTER =====
+let tpBaseFontSize = 22;
+document.getElementById('md-teleprompter').innerHTML = parseMd(MD_SCRIPT);
+
+function openTeleprompter() {
+    document.getElementById('teleprompterOverlay').classList.add('open');
+    document.getElementById('md-teleprompter').innerHTML = parseMd(MD_SCRIPT);
+    document.body.style.overflow = 'hidden';
+}
+function closeTeleprompter() {
+    document.getElementById('teleprompterOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+    if (document.fullscreenElement) document.exitFullscreen();
+}
+function tpFontSize(delta) {
+    tpBaseFontSize += delta;
+    if (tpBaseFontSize < 14) tpBaseFontSize = 14;
+    if (tpBaseFontSize > 48) tpBaseFontSize = 48;
+    const b = document.getElementById('teleprompterBody');
+    b.querySelectorAll('.md-wrap p, .md-wrap li, .md-wrap td').forEach(el => el.style.fontSize = tpBaseFontSize + 'px');
+    b.querySelectorAll('.md-wrap blockquote, .md-wrap blockquote p').forEach(el => el.style.fontSize = tpBaseFontSize + 'px');
+    b.querySelectorAll('.md-wrap h1').forEach(el => el.style.fontSize = (tpBaseFontSize + 14) + 'px');
+    b.querySelectorAll('.md-wrap h2').forEach(el => el.style.fontSize = (tpBaseFontSize + 8) + 'px');
+    b.querySelectorAll('.md-wrap h3').forEach(el => el.style.fontSize = (tpBaseFontSize + 2) + 'px');
+}
+function tpFullscreen() {
+    const el = document.getElementById('teleprompterOverlay');
+    if (el.requestFullscreen) el.requestFullscreen();
+}
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && document.getElementById('teleprompterOverlay').classList.contains('open')) {
+        closeTeleprompter();
+    }
+});
+
+// ===== DECK (PPTX PRESENTER) =====
+let deckSlides = [];
+let deckCurrent = 0;
+
+const deckDropZone = document.getElementById('deckDropZone');
+deckDropZone.addEventListener('dragover', e => { e.preventDefault(); deckDropZone.style.borderColor = 'var(--accent)'; });
+deckDropZone.addEventListener('dragleave', () => { deckDropZone.style.borderColor = 'var(--border)'; });
+deckDropZone.addEventListener('drop', e => { e.preventDefault(); if(e.dataTransfer.files.length) deckLoadFile(e.dataTransfer.files[0]); });
+document.getElementById('deckFileInput').addEventListener('change', e => { if(e.target.files.length) deckLoadFile(e.target.files[0]); });
+
+async function deckLoadFile(file) {
+    if (!file.name.match(/\.pptx?$/i)) { alert('Please select a .pptx file'); return; }
+    document.getElementById('deckLoading').style.display = 'block';
+    document.getElementById('deckFileName').textContent = file.name;
+
+    try {
+        const zip = await JSZip.loadAsync(file);
+        deckSlides = [];
+
+        const slideFiles = [];
+        zip.forEach((path, entry) => {
+            const match = path.match(/ppt\/slides\/slide(\d+)\.xml$/);
+            if (match) slideFiles.push({ num: parseInt(match[1]), path: path });
+        });
+        slideFiles.sort((a, b) => a.num - b.num);
+
+        const slideRels = {};
+        for (const sf of slideFiles) {
+            const relPath = sf.path.replace('ppt/slides/', 'ppt/slides/_rels/') + '.rels';
+            if (zip.file(relPath)) {
+                const relXml = await zip.file(relPath).async('text');
+                const parser = new DOMParser();
+                const relDoc = parser.parseFromString(relXml, 'text/xml');
+                const rels = relDoc.getElementsByTagName('Relationship');
+                slideRels[sf.num] = {};
+                for (let r of rels) {
+                    slideRels[sf.num][r.getAttribute('Id')] = r.getAttribute('Target');
+                }
+            }
+        }
+
+        for (const sf of slideFiles) {
+            const xml = await zip.file(sf.path).async('text');
+            const canvas = await deckRenderSlide(xml, zip, slideRels[sf.num] || {});
+            deckSlides.push(canvas.toDataURL('image/png'));
+        }
+
+        if (deckSlides.length === 0) {
+            alert('No slides found in this file.');
+            document.getElementById('deckLoading').style.display = 'none';
+            return;
+        }
+
+        document.getElementById('deckUploadArea').style.display = 'none';
+        document.getElementById('deckPresenter').style.display = 'flex';
+        document.getElementById('deckTotNum').textContent = deckSlides.length;
+        deckBuildThumbs();
+        deckShowSlide(0);
+    } catch(err) {
+        console.error(err);
+        alert('Error loading file: ' + err.message);
+        document.getElementById('deckLoading').style.display = 'none';
+    }
+}
+
+async function deckRenderSlide(xml, zip, rels) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1280; canvas.height = 720;
+    const ctx = canvas.getContext('2d');
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xml, 'text/xml');
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, 1280, 720);
+
+    const scaleX = 1280 / 12192000;
+    const scaleY = 720 / 6858000;
+    const spTree = doc.getElementsByTagName('p:spTree')[0];
+    if (!spTree) return canvas;
+
+    const shapes = [];
+    for (const child of spTree.children) {
+        const tag = child.tagName || child.nodeName;
+        if (tag === 'p:sp' || tag === 'p:pic' || tag === 'p:grpSp') shapes.push(child);
+    }
+
+    for (const shape of shapes) {
+        await deckRenderShape(ctx, shape, zip, rels, scaleX, scaleY);
+    }
+    return canvas;
+}
+
+async function deckRenderShape(ctx, shape, zip, rels, scaleX, scaleY) {
+    const xfrm = shape.getElementsByTagName('a:xfrm')[0];
+    let x = 0, y = 0, w = 1280, h = 720;
+    if (xfrm) {
+        const off = xfrm.getElementsByTagName('a:off')[0];
+        const ext = xfrm.getElementsByTagName('a:ext')[0];
+        if (off) { x = parseInt(off.getAttribute('x') || 0) * scaleX; y = parseInt(off.getAttribute('y') || 0) * scaleY; }
+        if (ext) { w = parseInt(ext.getAttribute('cx') || 0) * scaleX; h = parseInt(ext.getAttribute('cy') || 0) * scaleY; }
+    }
+
+    const blips = shape.getElementsByTagName('a:blip');
+    if (blips.length > 0) {
+        const embed = blips[0].getAttribute('r:embed');
+        if (embed && rels[embed]) {
+            let imgPath = rels[embed];
+            if (!imgPath.startsWith('ppt/')) imgPath = 'ppt/slides/' + imgPath;
+            imgPath = imgPath.replace('../', 'ppt/');
+            const imgFile = zip.file(imgPath);
+            if (imgFile) {
+                try {
+                    const blob = await imgFile.async('blob');
+                    const img = await deckLoadImage(URL.createObjectURL(blob));
+                    ctx.drawImage(img, x, y, w, h);
+                } catch(e) { console.warn('Image load failed:', e); }
+            }
+        }
+        return;
+    }
+
+    const solidFills = shape.getElementsByTagName('a:solidFill');
+    for (const fill of solidFills) {
+        const srgb = fill.getElementsByTagName('a:srgbClr')[0];
+        if (srgb) {
+            const parent = fill.parentNode;
+            const parentTag = parent.tagName || parent.nodeName;
+            if (parentTag === 'a:rPr' || parentTag === 'a:defRPr') continue;
+            ctx.fillStyle = '#' + srgb.getAttribute('val');
+            ctx.fillRect(x, y, w, h);
+            break;
+        }
+    }
+
+    const txBody = shape.getElementsByTagName('p:txBody')[0];
+    if (!txBody) return;
+
+    const paragraphs = txBody.getElementsByTagName('a:p');
+    let textY = y + 10;
+    const lineHeight = 1.3;
+
+    for (const para of paragraphs) {
+        let fontSize = 18;
+        let fontBold = false;
+        let fontItalic = false;
+        let fontColor = '#333333';
+        let align = 'left';
+
+        const pPr = para.getElementsByTagName('a:pPr')[0];
+        if (pPr) {
+            const algn = pPr.getAttribute('algn');
+            if (algn === 'ctr') align = 'center';
+            else if (algn === 'r') align = 'right';
+            const defRPr = pPr.getElementsByTagName('a:defRPr')[0];
+            if (defRPr && defRPr.getAttribute('sz')) fontSize = parseInt(defRPr.getAttribute('sz')) / 100;
+        }
+
+        const runs = para.getElementsByTagName('a:r');
+        let lineText = '';
+        let runStyles = [];
+
+        for (const run of runs) {
+            const rPr = run.getElementsByTagName('a:rPr')[0];
+            let rSize = fontSize, rBold = fontBold, rItalic = fontItalic, rColor = fontColor;
+            if (rPr) {
+                if (rPr.getAttribute('sz')) rSize = parseInt(rPr.getAttribute('sz')) / 100;
+                if (rPr.getAttribute('b') === '1') rBold = true;
+                if (rPr.getAttribute('i') === '1') rItalic = true;
+                const srgb = rPr.getElementsByTagName('a:srgbClr')[0];
+                if (srgb) rColor = '#' + srgb.getAttribute('val');
+            }
+            const textEl = run.getElementsByTagName('a:t')[0];
+            if (textEl && textEl.textContent) {
+                runStyles.push({ text: textEl.textContent, size: rSize, bold: rBold, italic: rItalic, color: rColor });
+                lineText += textEl.textContent;
+            }
+        }
+
+        if (lineText.trim() === '') { textY += fontSize * lineHeight; continue; }
+
+        let textX = x + 10;
+        if (align === 'center') {
+            ctx.font = fontSize + 'px sans-serif';
+            textX = x + (w - ctx.measureText(lineText).width) / 2;
+        } else if (align === 'right') {
+            ctx.font = fontSize + 'px sans-serif';
+            textX = x + w - ctx.measureText(lineText).width - 10;
+        }
+
+        for (const rs of runStyles) {
+            let fontStr = '';
+            if (rs.italic) fontStr += 'italic ';
+            if (rs.bold) fontStr += 'bold ';
+            fontStr += rs.size + 'px sans-serif';
+            ctx.font = fontStr;
+            ctx.fillStyle = rs.color;
+            ctx.fillText(rs.text, textX, textY + rs.size);
+            textX += ctx.measureText(rs.text).width;
+        }
+        textY += (runStyles.length > 0 ? Math.max(...runStyles.map(r => r.size)) : fontSize) * lineHeight;
+    }
+}
+
+function deckLoadImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+    });
+}
+
+function deckBuildThumbs() {
+    const panel = document.getElementById('deckThumbPanel');
+    panel.innerHTML = '';
+    deckSlides.forEach((src, i) => {
+        const div = document.createElement('div');
+        div.className = 'dthumb' + (i === 0 ? ' active' : '');
+        div.id = 'dthumb-' + i;
+        div.onclick = () => deckShowSlide(i);
+        div.innerHTML = '<img src="' + src + '" alt="Slide ' + (i+1) + '"><div class="dthumb-label">' + (i+1) + '</div>';
+        panel.appendChild(div);
+    });
+}
+
+function deckShowSlide(n) {
+    if (n < 0 || n >= deckSlides.length) return;
+    document.getElementById('dthumb-' + deckCurrent)?.classList.remove('active');
+    deckCurrent = n;
+    document.getElementById('deckMainSlide').src = deckSlides[deckCurrent];
+    document.getElementById('deckCurNum').textContent = deckCurrent + 1;
+    document.getElementById('dthumb-' + deckCurrent)?.classList.add('active');
+    document.getElementById('dthumb-' + deckCurrent)?.scrollIntoView({block: 'nearest'});
+}
+
+function deckNext() { deckShowSlide(deckCurrent + 1); }
+function deckPrev() { deckShowSlide(deckCurrent - 1); }
+function deckToggleThumbs() { document.getElementById('deckThumbPanel').classList.toggle('hidden'); }
+function deckFullscreen() {
+    const el = document.getElementById('tab-deck');
+    if (el.requestFullscreen) el.requestFullscreen();
+}
+function deckReset() {
+    deckSlides = [];
+    deckCurrent = 0;
+    document.getElementById('deckPresenter').style.display = 'none';
+    document.getElementById('deckUploadArea').style.display = 'flex';
+    document.getElementById('deckLoading').style.display = 'none';
+}
+
+// Keyboard nav for deck when deck tab is active
+document.addEventListener('keydown', e => {
+    const deckTab = document.getElementById('tab-deck');
+    if (deckTab.classList.contains('active') && deckSlides.length > 0) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); deckNext(); }
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); deckPrev(); }
+        else if (e.key === 'Home') { e.preventDefault(); deckShowSlide(0); }
+        else if (e.key === 'End') { e.preventDefault(); deckShowSlide(deckSlides.length - 1); }
+    }
+});
+</script>
+</body>
+</html>
